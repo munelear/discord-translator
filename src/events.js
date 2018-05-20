@@ -3,13 +3,12 @@ const oneLine = require("common-tags").oneLine;
 const auth = require("./core/auth");
 const logger = require("./core/logger");
 const messageHandler = require("./message");
-const intervals = require("./intervals");
 const db = require("./core/db");
 const setStatus = require("./core/status");
 const react = require("./commands/translate.react");
 
-const botVersion = "0.4.2 Beta";
-const botCreator = "Aziz Natour (@aziz#5919)";
+const botVersion = "0.5.0";
+const botCreator = "munelear#1358";
 
 exports.listen = function(client)
 {
@@ -27,7 +26,7 @@ exports.listen = function(client)
 
       config = {
          version: botVersion,
-         botServer: "https://discord.gg/uekTNPj",
+         botServer: "https://discord.gg/ZJukUDV",
          inviteURL: auth.invite,
          owner: auth.botOwner,
          defaultLanguage: "en",
@@ -76,15 +75,6 @@ exports.listen = function(client)
 
       if (shard.id === shard.count - 1)
       {
-         //
-         // Custom intervals
-         //
-
-         if (auth.intervals)
-         {
-            intervals(client, config);
-         }
-
          //
          // Log connection event
          //

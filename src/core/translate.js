@@ -10,9 +10,13 @@ const fn = require("./helpers");
 
 const translateFix = function(string)
 {
-   return fn.replaceAll(
-      string, /(<[:@#])\s?(&)?\s?(\w+:?)\s?(\w+>)/igm, "$1$2$3$4"
-   );
+   const normal = /(<[@#!$%&*])\s*/gim;
+   const nick = /(<[@#!$%&*]!)\s*/gim;
+   const role = /(<[@#!$%&*]&)\s*/gim;
+
+   return string.replace(normal, "$1")
+      .replace(nick, "$1")
+      .replace(role, "$1");
 };
 
 // -----------------------------------------
