@@ -8,10 +8,7 @@
       "name": "munelear <munelear@gmail.com>",
       "url": "https://github.com/munelear"
    },
-   "contributors": [{
-      "name": "Aziz Natour <azizgfx@gmail.com>",
-      "url": "http://www.aziznatour.com"
-   }],
+   "contributors": [],
    "keywords": [
       "discord",
       "discordjs",
