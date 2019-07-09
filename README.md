@@ -1,9 +1,7 @@
 # Discord Translator Bot (beta)
 Translation bot built using `discord.js` and `Google Translate API`.
 
-Project originally created by [nvu.io](https://nvu.io) / Aziz Natour - [@aziznatour](http://www.twitter.com/aziznatour)
-
-Forked for personal use after the project was taken closed source.
+Forked for personal use after the project was taken closed source.  References to original author removed by request.
 
 
 ## Features
@@ -28,7 +26,3 @@ Forked for personal use after the project was taken closed source.
 ## Info for Developers
 * [Running bot](https://github.com/munelear/discord-translator/wiki/Running-Bot)
 * [Code contribution](https://github.com/munelear/discord-translator/wiki/Contribute)
-
-## Credits & License
-Created by [nvu.io](https://nvu.io) / Aziz Natour - [@aziznatour](http://www.twitter.com/aziznatour).<br />
-Released under MIT license.
