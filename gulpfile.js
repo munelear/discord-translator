@@ -4,24 +4,22 @@ const watch = require('gulp-watch');
 const lec = require('gulp-line-ending-corrector');
 //const uglify = require('gulp-uglify-es').default;
 
-gulp.task('lint', () => {
-    return gulp.src(['src/**/*.js'])
-        .pipe(lec())
-        .pipe(eslint())
-        .pipe(eslint.format())
-        .pipe(eslint.failAfterError());
-});
+function lint() {
+  return gulp.src(['src/**/*.js'])
+    .pipe(lec())
+    .pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
+};
 
-gulp.task("compress", function () {
-    return gulp.src("src/**/*.js")
-        //.pipe(uglify())
-        .pipe(gulp.dest("build/"));
-});
+module.exports.lint = lint;
 
-gulp.task('default', ['lint', 'compress']);
+function compress () {
+  return gulp.src("src/**/*.js")
+    //.pipe(uglify())
+    .pipe(gulp.dest("build/"));
+}
 
-gulp.task('build', ['lint', 'compress']);
+module.exports.compress = compress;
 
-gulp.task('watch', function() {
-  gulp.watch('src/**/*.js', ['default']);
-});
+module.exports.build = module.exports.default = gulp.series(lint, compress);
