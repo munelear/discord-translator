@@ -14,13 +14,12 @@ const bot = path.join(__dirname, "bot.js");
 
 let shards = 2;
 
-if (auth.shards)
-{
-   shards = auth.shards;
+if (auth.shards) {
+  shards = auth.shards;
 }
 
 const shardingOptions = {
-   totalShards: shards
+  totalShards: shards,
 };
 
 const manager = new discord.ShardingManager(bot, shardingOptions);

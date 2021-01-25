@@ -6,112 +6,92 @@ const fn = require("./helpers");
 // Fix inconsistencies in lang codes
 // ----------------------------------
 
-const langExceptions =
-{
-   "he": "iw",
-   "zh": "zh-cn",
-   "ch": "zh-cn"
+const langExceptions = {
+  he: "iw",
+  zh: "zh-cn",
+  ch: "zh-cn",
 };
 
-const langInvertException = function(code)
-{
-   const output = fn.getKeyByValue(langExceptions, code);
+const langInvertException = function (code) {
+  const output = fn.getKeyByValue(langExceptions, code);
 
-   if (output)
-   {
-      return output;
-   }
+  if (output) {
+    return output;
+  }
 
-   return code;
+  return code;
 };
 
 // -----------------------------
 // Convert language name to ISO
 // -----------------------------
 
-const getLangISO = function(lang)
-{
-   var code;
+const getLangISO = function (lang) {
+  var code;
 
-   if (!(/^[A-z]{2}[A-z]?(?:-[A-z]{2,}?)?$/i).test(lang))
-   {
-      code = ISO6391.getCode(lang);
-   }
+  if (!/^[A-z]{2}[A-z]?(?:-[A-z]{2,}?)?$/i.test(lang)) {
+    code = ISO6391.getCode(lang);
+  } else {
+    code = lang;
+  }
 
-   else
-   {
-      code = lang;
-   }
+  if (langExceptions.hasOwnProperty(code)) {
+    return langExceptions[code];
+  }
 
-   if (langExceptions.hasOwnProperty(code))
-   {
-      return langExceptions[code];
-   }
-
-   return code;
+  return code;
 };
 
 // --------------------------------------
 // Language Code Converter and Validator
 // --------------------------------------
 
-module.exports = function(lang, single = false)
-{
-   if (!lang)
-   {
-      return null;
-   }
+module.exports = function (lang, single = false) {
+  if (!lang) {
+    return null;
+  }
 
-   if (lang === "default")
-   {
-      return "default";
-   }
+  if (lang === "default") {
+    return "default";
+  }
 
-   if (lang === "auto")
-   {
-      return "auto";
-   }
+  if (lang === "auto") {
+    return "auto";
+  }
 
-   var langs = {
-      unchecked: fn.arraySplit(lang, ","),
-      valid: [],
-      unique: [],
-      invalid: []
-   };
+  var langs = {
+    unchecked: fn.arraySplit(lang, ","),
+    valid: [],
+    unique: [],
+    invalid: [],
+  };
 
-   langs.unchecked.forEach(language =>
-   {
-      const langISO = getLangISO(language.trim());
+  langs.unchecked.forEach((language) => {
+    const langISO = getLangISO(language.trim());
 
-      if (translate.languages.isSupported(langISO))
-      {
-         if (!langs.unique.includes(langISO))
-         {
-            langs.unique.push(langISO);
-            langs.valid.push({
-               iso: langISO,
-               name: ISO6391.getName(langInvertException(langISO)),
-               native: ISO6391.getNativeName(langInvertException(langISO))
-            });
-         }
+    if (translate.languages.isSupported(langISO)) {
+      if (!langs.unique.includes(langISO)) {
+        langs.unique.push(langISO);
+        langs.valid.push({
+          iso: langISO,
+          name: ISO6391.getName(langInvertException(langISO)),
+          native: ISO6391.getNativeName(langInvertException(langISO)),
+        });
       }
+    } else {
+      langs.invalid.push(language.trim());
+    }
+  });
 
-      else
-      {
-         langs.invalid.push(language.trim());
-      }
-   });
+  // clean up
 
-   // clean up
+  langs.invalid = fn.removeDupes(langs.invalid);
 
-   langs.invalid = fn.removeDupes(langs.invalid);
+  delete langs.unchecked;
 
-   delete langs.unchecked;
+  if (single) {
+    return langs.unique[0];
+  }
 
-   if (single)
-   {
-      return langs.unique[0];
-   }
-
-   return langs;
+  return langs;
 };

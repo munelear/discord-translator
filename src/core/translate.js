@@ -8,15 +8,12 @@ const fn = require("./helpers");
 // (Emojis, Mentions, Channels)
 // ------------------------------------------
 
-const translateFix = function(string)
-{
-   const normal = /(<[@#!$%&*])\s*/gim;
-   const nick = /(<[@#!$%&*]!)\s*/gim;
-   const role = /(<[@#!$%&*]&)\s*/gim;
+const translateFix = function (string) {
+  const normal = /(<[@#!$%&*])\s*/gim;
+  const nick = /(<[@#!$%&*]!)\s*/gim;
+  const role = /(<[@#!$%&*]&)\s*/gim;
 
-   return string.replace(normal, "$1")
-      .replace(nick, "$1")
-      .replace(role, "$1");
+  return string.replace(normal, "$1").replace(nick, "$1").replace(role, "$1");
 };
 
 // -----------------------------------------
@@ -25,268 +22,247 @@ const translateFix = function(string)
 // @Deprecated: now using role color instead
 // -----------------------------------------
 
-function getUserColor(data, callback)
-{
-   const fw = data.forward;
-   const txt = data.text;
-   const ft = data.footer;
-   const usr = data.author;
+function getUserColor(data, callback) {
+  const fw = data.forward;
+  const txt = data.text;
+  const ft = data.footer;
+  const usr = data.author;
 
-   data.forward = fw;
-   data.text = txt;
-   data.footer = ft;
-   data.author = usr;
+  data.forward = fw;
+  data.text = txt;
+  data.footer = ft;
+  data.author = usr;
 
-   callback(data);
+  callback(data);
 }
 
 // --------------------------
 // Translate buffered chains
 // --------------------------
 
-const bufferSend = function(arr, data)
-{
-   const sorted = fn.sortByKey(arr, "time");
-   sorted.forEach(msg =>
-   {
-      data.text = msg.text;
-      data.color = msg.color;
-      data.author = msg.author;
-      data.showAuthor = true;
-      botSend(data);
-   });
+const bufferSend = function (arr, data) {
+  const sorted = fn.sortByKey(arr, "time");
+  sorted.forEach((msg) => {
+    data.text = msg.text;
+    data.color = msg.color;
+    data.author = msg.author;
+    data.showAuthor = true;
+    botSend(data);
+  });
 };
 
-const bufferChains = function(data, from)
-{
-   var translatedChains = [];
+const bufferChains = function (data, from) {
+  var translatedChains = [];
 
-   data.bufferChains.forEach(chain =>
-   {
-      const chainMsgs = chain.msgs.join("\n");
-      const to = data.translate.to.valid[0].iso;
+  data.bufferChains.forEach((chain) => {
+    const chainMsgs = chain.msgs.join("\n");
+    const to = data.translate.to.valid[0].iso;
 
-      translate(chainMsgs, {
-         to: to,
-         from: from
-      }).then(res =>
-      {
-         const output = translateFix(res.text);
+    translate(chainMsgs, {
+      to: to,
+      from: from,
+    }).then((res) => {
+      const output = translateFix(res.text);
 
-         getUserColor(chain, function(gotData)
-         {
-            translatedChains.push({
-               time: chain.time,
-               color: gotData.color,
-               author: gotData.author,
-               text: output
-            });
+      getUserColor(chain, function (gotData) {
+        translatedChains.push({
+          time: chain.time,
+          color: gotData.color,
+          author: gotData.author,
+          text: output,
+        });
 
-            if (fn.bufferEnd(data.bufferChains, translatedChains))
-            {
-               bufferSend(translatedChains, data);
-            }
-         });
+        if (fn.bufferEnd(data.bufferChains, translatedChains)) {
+          bufferSend(translatedChains, data);
+        }
       });
-   });
+    });
+  });
 };
 
 // ---------------------
 // Invalid lang checker
 // ---------------------
 
-const invalidLangChecker = function(obj, callback)
-{
-   if (obj && obj.invalid && obj.invalid.length > 0)
-   {
-      return callback();
-   }
+const invalidLangChecker = function (obj, callback) {
+  if (obj && obj.invalid && obj.invalid.length > 0) {
+    return callback();
+  }
 };
 
 // --------------------
 // Update server stats
 // --------------------
 
-const updateServerStats = function(message)
-{
-   var id = "bot";
+const updateServerStats = function (message) {
+  var id = "bot";
 
-   if (message.channel.type === "text")
-   {
-      id = message.channel.guild.id;
-   }
+  if (message.channel.type === "text") {
+    id = message.channel.guild.id;
+  }
 
-   db.increase("servers", "id", id, "count");
+  db.increase("servers", "id", id, "count");
 };
 
 // ----------------
 // Run translation
 // ----------------
 
-module.exports = function(data) //eslint-disable-line complexity
-{
-   //
-   // Get message author
-   //
+module.exports = function (
+  data //eslint-disable-line complexity
+) {
+  //
+  // Get message author
+  //
 
-   data.author = data.message.author;
+  data.author = data.message.author;
 
-   //
-   // Report invalid languages
-   //
+  //
+  // Report invalid languages
+  //
 
-   invalidLangChecker(data.translate.from, function()
-   {
-      data.color = "warn";
-      data.text = ":warning:  Cannot translate from `" +
-                  data.translate.from.invalid.join("`, `") + "`.";
-      botSend(data);
-   });
+  invalidLangChecker(data.translate.from, function () {
+    data.color = "warn";
+    data.text =
+      ":warning:  Cannot translate from `" +
+      data.translate.from.invalid.join("`, `") +
+      "`.";
+    botSend(data);
+  });
 
-   invalidLangChecker(data.translate.to, function()
-   {
-      data.color = "warn";
-      data.text = ":warning:  Cannot translate to `" +
-                  data.translate.to.invalid.join("`, `") + "`.";
-      botSend(data);
-   });
+  invalidLangChecker(data.translate.to, function () {
+    data.color = "warn";
+    data.text =
+      ":warning:  Cannot translate to `" +
+      data.translate.to.invalid.join("`, `") +
+      "`.";
+    botSend(data);
+  });
 
-   //
-   // Stop if there are no valid languages
-   //
+  //
+  // Stop if there are no valid languages
+  //
 
-   if (
-      data.translate.to.valid.length < 1 ||
-      data.translate.from.valid && data.translate.from.valid.length < 1
-   )
-   {
-      return;
-   }
+  if (
+    data.translate.to.valid.length < 1 ||
+    (data.translate.from.valid && data.translate.from.valid.length < 1)
+  ) {
+    return;
+  }
 
-   //
-   // Handle value of `from` language
-   //
+  //
+  // Handle value of `from` language
+  //
 
-   var from = data.translate.from;
+  var from = data.translate.from;
 
-   if (from !== "auto")
-   {
-      from = data.translate.from.valid[0].iso;
-   }
+  if (from !== "auto") {
+    from = data.translate.from.valid[0].iso;
+  }
 
-   //
-   // Get guild data
-   //
+  //
+  // Get guild data
+  //
 
-   var guild = null;
+  var guild = null;
 
-   if (data.message.channel.type === "text")
-   {
-      guild = data.message.channel.guild;
-   }
+  if (data.message.channel.type === "text") {
+    guild = data.message.channel.guild;
+  }
 
-   //
-   // Translate multiple chains (!translate last n)
-   //
+  //
+  // Translate multiple chains (!translate last n)
+  //
 
-   if (data.bufferChains)
-   {
-      return bufferChains(data, from, guild);
-   }
+  if (data.bufferChains) {
+    return bufferChains(data, from, guild);
+  }
 
-   //
-   // Multi-translate same message
-   //
+  //
+  // Multi-translate same message
+  //
 
-   var translateBuffer = {};
+  var translateBuffer = {};
 
-   if (data.translate.multi && data.translate.to.valid.length > 1)
-   {
-      //
-      // Stop if user requested too many languages
-      //
+  if (data.translate.multi && data.translate.to.valid.length > 1) {
+    //
+    // Stop if user requested too many languages
+    //
 
-      if (data.translate.to.valid.length > 6)
-      {
-         data.text = "Too many languages specified";
-         data.color = "error";
-         return botSend(data);
-      }
+    if (data.translate.to.valid.length > 6) {
+      data.text = "Too many languages specified";
+      data.color = "error";
+      return botSend(data);
+    }
 
-      //
-      // Buffer translations
-      //
+    //
+    // Buffer translations
+    //
 
-      const bufferID = data.message.createdTimestamp;
+    const bufferID = data.message.createdTimestamp;
 
-      data.color = null;
+    data.color = null;
 
-      data.text = "";
+    data.text = "";
 
-      translateBuffer[bufferID] = {
-         count: 0,
-         len: data.translate.to.valid.length,
-         text: "",
-         update: function(newMsg, data)
-         {
-            this.count++;
-            this.text += newMsg;
+    translateBuffer[bufferID] = {
+      count: 0,
+      len: data.translate.to.valid.length,
+      text: "",
+      update: function (newMsg, data) {
+        this.count++;
+        this.text += newMsg;
 
-            if (this.count === this.len)
-            {
-               data.text = this.text;
-               data.color = data.message.roleColor;
-               data.showAuthor = true;
-               getUserColor(data, botSend);
-            }
-         }
-      };
+        if (this.count === this.len) {
+          data.text = this.text;
+          data.color = data.message.roleColor;
+          data.showAuthor = true;
+          getUserColor(data, botSend);
+        }
+      },
+    };
 
-      data.translate.to.valid.forEach(lang =>
-      {
-         translate(data.translate.original, {
-            to: lang.iso,
-            from: from
-         }).then(res =>
-         {
-            const title = `\`\`\`LESS\n ${lang.name} (${lang.native}) \`\`\`\n`;
-            const output = "\n" + title + translateFix(res.text) + "\n";
-            return translateBuffer[bufferID].update(output, data);
-         });
+    data.translate.to.valid.forEach((lang) => {
+      translate(data.translate.original, {
+        to: lang.iso,
+        from: from,
+      }).then((res) => {
+        const title = `\`\`\`LESS\n ${lang.name} (${lang.native}) \`\`\`\n`;
+        const output = "\n" + title + translateFix(res.text) + "\n";
+        return translateBuffer[bufferID].update(output, data);
       });
-      return;
-   }
+    });
+    return;
+  }
 
-   //
-   // Send single translation
-   //
+  //
+  // Send single translation
+  //
 
-   const opts = {
-      to: data.translate.to.valid[0].iso,
-      from: from
-   };
+  const opts = {
+    to: data.translate.to.valid[0].iso,
+    from: from,
+  };
 
-   const fw = data.forward;
-   const ft = data.footer;
+  const fw = data.forward;
+  const ft = data.footer;
 
-   //
-   // Split long messages
-   //
+  //
+  // Split long messages
+  //
 
-   const textArray = fn.chunkString(data.translate.original, 1500);
+  const textArray = fn.chunkString(data.translate.original, 1500);
 
-   textArray.forEach(chunk =>
-   {
-      translate(chunk, opts).then(res =>
-      {
-         updateServerStats(data.message);
-         data.forward = fw;
-         data.footer = ft;
-         data.color = data.message.roleColor;
-         data.text = translateFix(res.text);
-         data.showAuthor = true;
-         return getUserColor(data, botSend);
-      });
-   });
-   return;
+  textArray.forEach((chunk) => {
+    translate(chunk, opts).then((res) => {
+      updateServerStats(data.message);
+      data.forward = fw;
+      data.footer = ft;
+      data.color = data.message.roleColor;
+      data.text = translateFix(res.text);
+      data.showAuthor = true;
+      return getUserColor(data, botSend);
+    });
+  });
+  return;
 };
