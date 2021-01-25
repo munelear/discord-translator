@@ -5,7 +5,7 @@
 // https://discordapp.com/developers/applications/me
 //
 
-exports.token = "";
+exports.token = process.env.DISCORD_TOKEN;
 
 //
 // Add your Discord Main User ID here
@@ -13,52 +13,29 @@ exports.token = "";
 // Right click your user in channel/message and pick "Copy ID" to obtain
 //
 
-exports.botOwner = "";
-
-//
-// Number of shards to spawn in sharding manager (large bots only)
-//
-
-exports.shards = 2;
+exports.botOwner = process.env.BOT_OWNER;
 
 //
 // Invite URL (OAuth2)
 //
 
-exports.invite = "";
+exports.invite = process.env.INVITE_URL;
 
 //
 // Add Webhook info for logging (optional)
 //
 
-exports.loggerWebhookID = null;
-
-exports.loggerWebhookToken = null;
-
-//
-// Allow intervals (optional)
-//
-
-exports.intervals = false;
-
-//
-// Add donation URL (optional)
-//
-
-exports.donation = null;
+exports.loggerWebhookID = process.env.LOGGER_WEBHOOK_ID || null;
+exports.loggerWebhookToken = process.env.LOGGER_WEBHOOK_TOKEN || null;
 
 //
 // Changelog URL (optional)
 //
 
-exports.changelog = null;
+exports.changelog = process.env.CHANGELOG_URL || null;
 
 //
 // Developer Mode
 //
 
-exports.dev = false;
-
-//
-// Remember to rename this file to "auth.js" after you're done
-//
+exports.dev = process.env.DEVMODE || false;

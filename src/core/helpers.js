@@ -111,7 +111,7 @@ exports.getRoleColor = function (member) {
 //
 
 exports.getUser = function (client, userID, cb) {
-  const user = client.users.get(userID);
+  const user = client.users.fetch(userID);
 
   if (user) {
     return cb(user);
@@ -133,7 +133,7 @@ exports.getUser = function (client, userID, cb) {
 //
 
 exports.getChannel = function (client, channelID, userID, cb) {
-  const channel = client.channels.get(channelID);
+  const channel = client.channels.fetch(channelID);
 
   if (channel) {
     return cb(channel);
@@ -160,7 +160,7 @@ exports.getChannel = function (client, channelID, userID, cb) {
 
 exports.getMessage = function (client, messageID, channelID, userID, cb) {
   module.exports.getChannel(client, channelID, userID, (channel) => {
-    const message = channel.messages.get(messageID);
+    const message = channel.messages.fetch(messageID);
 
     if (message) {
       return cb(message);

@@ -44,7 +44,7 @@ module.exports = function (data, client) {
           return;
         }
 
-        const flagExists = message.reactions.get(emoji);
+        const flagExists = message.reactions.fetch(emoji);
 
         // prevent flag spam
 

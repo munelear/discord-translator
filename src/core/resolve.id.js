@@ -54,18 +54,18 @@ exports.main = function (client, id, output = null, guild) {
 
   const prefixMap = {
     "@": function () {
-      resolved.obj = client.users.get(resolved.pure);
+      resolved.obj = client.users.fetch(resolved.pure);
       resolved.name = resolved.obj.username;
     },
     "@&": function () {
       resolved.name = "@group";
       if (guild) {
-        resolved.obj = guild.roles.get(resolved.pure);
+        resolved.obj = guild.roles.fetch(resolved.pure);
         resolved.name = resolved.obj.name;
       }
     },
     "#": function () {
-      resolved.obj = client.channels.get(resolved.pure);
+      resolved.obj = client.channels.fetch(resolved.pure);
       resolved.name = module.exports.getChName(resolved.obj);
     },
   };
@@ -73,7 +73,7 @@ exports.main = function (client, id, output = null, guild) {
   if (resolved.prefix && prefixMap.hasOwnProperty(resolved.prefix)) {
     prefixMap[resolved.prefix]();
   } else {
-    resolved.obj = client.channels.get(id);
+    resolved.obj = client.channels.fetch(id);
     resolved.name = module.exports.getChName(resolved.obj);
     resolved.prefix = "#";
   }

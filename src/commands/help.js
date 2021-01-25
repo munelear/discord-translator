@@ -57,12 +57,6 @@ const helpMessage = function (config, botname, param) {
     `**${botname} Bot - v.${config.version}**\n` +
     `Translates Discord messages (based on \`Google API\`).\n\n`;
 
-  var donation = "";
-
-  if (auth.donation && auth.donation.length > 5) {
-    donation = "Like this bot? [Support the developer!](" + auth.donation + ")";
-  }
-
   //
   // Help Basics
   //
@@ -138,8 +132,7 @@ const helpMessage = function (config, botname, param) {
       title: "Report Bugs / Request Features",
       link: config.botServer,
       icon: ":raising_hand::skin-tone-3:",
-    }) +
-    donation;
+    });
 
   //
   // Last Message (last)

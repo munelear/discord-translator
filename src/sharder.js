@@ -8,21 +8,7 @@ const auth = require("./core/auth");
 const path = require("path");
 const bot = path.join(__dirname, "bot.js");
 
-/**
- * Shard Manager
- */
-
-let shards = 2;
-
-if (auth.shards) {
-  shards = auth.shards;
-}
-
-const shardingOptions = {
-  totalShards: shards,
-};
-
-const manager = new discord.ShardingManager(bot, shardingOptions);
+const manager = new discord.ShardingManager(bot);
 
 /**
  * Spawn Shards

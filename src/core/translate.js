@@ -1,4 +1,4 @@
-const translate = require("google-translate-api");
+const translate = require('@vitalets/google-translate-api');
 const db = require("./db");
 const botSend = require("./send");
 const fn = require("./helpers");
@@ -240,6 +240,7 @@ module.exports = function (
   //
 
   const opts = {
+    client: 'gtx',
     to: data.translate.to.valid[0].iso,
     from: from,
   };

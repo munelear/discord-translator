@@ -6,7 +6,8 @@ const fn = require("../core/helpers");
 const logger = require("../core/logger");
 const stripIndent = require("common-tags").stripIndent;
 const oneLine = require("common-tags").oneLine;
-const secConverter = require("seconds-converter");
+const moment = require("moment");
+require("moment-duration-format");
 
 // =============
 // Version Info
@@ -72,9 +73,9 @@ exports.shards = function (data) {
       "​\n" +
       oneLine`
          :bar_chart:  ​
-         **${data.message.client.guilds.size}**  guilds  ·  ​
-         **${data.message.client.channels.size}**  channels  ·  ​
-         **${data.message.client.users.size}**  users
+         **${data.message.client.guilds.cache.size}**  guilds  ·  ​
+         **${data.message.client.channels.cache.size}**  channels  ·  ​
+         **${data.message.client.users.cache.size}**  users
       ` +
       "\n​";
 
@@ -94,13 +95,13 @@ exports.shards = function (data) {
   };
 
   shard
-    .fetchClientValues("guilds.size")
+    .fetchClientValues("guilds.cache.size")
     .then((guildsSize) => {
       shard
-        .fetchClientValues("channels.size")
+        .fetchClientValues("channels.cache.size")
         .then((channelsSize) => {
           shard
-            .fetchClientValues("users.size")
+            .fetchClientValues("users.cache.size")
             .then((usersSize) => {
               //logger("dev", guildsSize);
               //logger("dev", channelsSize);
@@ -219,25 +220,10 @@ exports.proc = function (data) {
    `;
 
   //
-  // Get CPU usage
-  //
-
-  const cpu = cpuUsage();
-
-  //
   // Get proccess/shard uptime
   //
-
-  const procUptime = secConverter(Math.round(process.uptime()), "sec");
-
-  const shardUptime = secConverter(data.message.client.uptime);
-
-  const uptimeFormat = function (uptime) {
-    return oneLine`
-         **\`${uptime.days}\`** days
-         **\`${uptime.hours}:${uptime.minutes}:${uptime.seconds}\`**
-      `;
-  };
+  const procUptime = moment.duration(Math.round(process.uptime()), "seconds").format("D [days], H [hrs], m [mins], s [secs]");
+  const shardUptime = moment.duration(data.message.client.uptime).format("D [days], H [hrs], m [mins], s [secs]");
 
   //
   // Render message
@@ -248,11 +234,9 @@ exports.proc = function (data) {
 
       :control_knobs:  RAM:  ${memoryFormat}
 
-      :control_knobs:  CPU:  **\`${cpu}%\`**
+      :stopwatch:  Proc Uptime:  ${procUptime}
 
-      :stopwatch:  Proc Uptime:  ${uptimeFormat(procUptime)}
-
-      :stopwatch:  Shard Uptime:  ${uptimeFormat(shardUptime)}
+      :stopwatch:  Shard Uptime:  ${shardUptime}
 
       :pager:  Current Shard:  **\`${shard.id + 1} / ${shard.count}\`**
    `;
@@ -262,33 +246,4 @@ exports.proc = function (data) {
   //
 
   botSend(data);
-};
-
-// ==============
-// Get CPU Usage
-// ==============
-
-const cpuUsage = function () {
-  function secNSec2ms(secNSec) {
-    return secNSec[0] * 1000 + secNSec[1] / 1000000;
-  }
-
-  var startTime = process.hrtime();
-  var startUsage = process.cpuUsage();
-
-  // spin the CPU for 500 milliseconds
-
-  var now = Date.now();
-  while (Date.now() - now < 500) {
-    //do nothing
-  }
-
-  var elapTime = process.hrtime(startTime);
-  var elapUsage = process.cpuUsage(startUsage);
-  var elapTimeMS = secNSec2ms(elapTime);
-  var elapUserMS = secNSec2ms(elapUsage.user);
-  var elapSystMS = secNSec2ms(elapUsage.system);
-  var cpuPercent = Math.round((100 * (elapUserMS + elapSystMS)) / elapTimeMS);
-
-  return cpuPercent;
 };

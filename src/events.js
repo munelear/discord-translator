@@ -58,9 +58,9 @@ exports.listen = function (client) {
 
     console.log(oneLine`
          Shard#${shard.id}:  ${shard.id + 1} / ${shard.count} online -
-         ${client.guilds.size.toLocaleString()} guilds,
-         ${client.channels.size.toLocaleString()} channels,
-         ${client.users.size.toLocaleString()} users
+         ${client.guilds.cache.size.toLocaleString()} guilds,
+         ${client.channels.cache.size.toLocaleString()} channels,
+         ${client.users.cache.size.toLocaleString()} users
       `);
 
     setStatus(client.user, "online");
@@ -76,7 +76,7 @@ exports.listen = function (client) {
 
       console.log(stripIndent`
             ----------------------------------------
-            All shards are online, running intervals
+            All shards are online
             ----------------------------------------
          `);
 

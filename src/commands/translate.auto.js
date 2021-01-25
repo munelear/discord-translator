@@ -142,7 +142,7 @@ module.exports = function (data) {
         // resolve mentioned channel(s)
 
         if (dest.startsWith("<#")) {
-          const channel = data.client.channels.get(dest.slice(2, -1));
+          const channel = data.client.channels.fetch(dest.slice(2, -1));
 
           if (channel) {
             taskBuffer.update(channel.id);

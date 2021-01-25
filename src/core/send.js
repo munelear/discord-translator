@@ -8,7 +8,7 @@ const discord = require("discord.js");
 // Send Data to Channel
 //
 
-const sendBox = function (data) {
+const sendBox = async function (data) {
   if (data.author) {
     data.author = {
       name: data.author.username,
@@ -18,7 +18,7 @@ const sendBox = function (data) {
   }
 
   if (data.text && data.text.length > 1) {
-    data.channel
+    (await data.channel)
       .send({
         embed: {
           title: data.title,
@@ -33,7 +33,7 @@ const sendBox = function (data) {
         sendEmbeds(data);
         sendAttachments(data);
       })
-      .catch((err) => {
+      .catch(async (err) => {
         var errMsg = err;
         logger("dev", err);
 
@@ -42,7 +42,7 @@ const sendBox = function (data) {
         //
 
         if (err.code && err.code === 50035) {
-          data.channel.send(":warning:  Message is too long.");
+          (await data.channel).send(":warning:  Message is too long.");
         }
 
         //
@@ -78,7 +78,7 @@ const sendBox = function (data) {
 // Only if content is forwared to another channel
 //
 
-const sendEmbeds = function (data) {
+const sendEmbeds = async function (data) {
   if (data.forward && data.embeds && data.embeds.length > 0) {
     const maxEmbeds = data.config.maxEmbeds;
 
@@ -93,7 +93,7 @@ const sendEmbeds = function (data) {
     }
 
     for (let i = 0; i < data.embeds.length; i++) {
-      data.channel.send(data.embeds[i].url);
+      (await data.channel).send(data.embeds[i].url);
     }
   }
 };
@@ -102,7 +102,7 @@ const sendEmbeds = function (data) {
 // Resend attachments
 //
 
-const sendAttachments = function (data) {
+const sendAttachments = async function (data) {
   var attachments = data.attachments.array();
 
   if (data.forward && attachments && attachments.length > 0) {
@@ -122,7 +122,7 @@ const sendAttachments = function (data) {
         attachments[i].url,
         attachments[i].filename
       );
-      data.channel.send(attachmentObj);
+      (await data.channel).send(attachmentObj);
     }
   }
 };
@@ -164,7 +164,7 @@ module.exports = function (data) {
   }
 
   if (data.forward) {
-    const forwardChannel = data.client.channels.get(data.forward);
+    const forwardChannel = data.client.channels.fetch(data.forward);
 
     if (forwardChannel) {
       //

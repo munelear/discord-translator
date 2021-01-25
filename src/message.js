@@ -56,7 +56,7 @@ module.exports = function (config, message, edited, deleted) {
   if (
     message.content.startsWith(config.translateCmd) ||
     message.content.startsWith(config.translateCmdShort) ||
-    message.isMentioned(bot)
+    message.mentions.has(bot)
   ) {
     return cmdArgs(data);
   }
