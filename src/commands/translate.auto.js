@@ -100,11 +100,9 @@ module.exports = function (data) {
   // Resolve ID of each destiantion (user dm/channel)
   //
 
-  const taskLoop = function () {
+  const taskLoop = async function () {
     data.task.for.forEach(
-      (
-        dest //eslint-disable-line complexity
-      ) => {
+      async (dest) => {
         // resolve `me` / original message author
 
         if (dest === "me") {
@@ -122,21 +120,20 @@ module.exports = function (data) {
         if (dest.startsWith("<@")) {
           const userID = dest.slice(2, -1);
 
-          fn.getUser(data.client, userID, (user) => {
-            if (user && !user.bot && user.createDM) {
-              user
-                .createDM()
-                .then((dm) => {
-                  taskBuffer.update(dm.id);
-                })
-                .catch((err) => logger("error", err));
+          const user = await fn.getUser(data.client, userID)
+          if (user && !user.bot && user.createDM) {
+            user
+              .createDM()
+              .then((dm) => {
+                taskBuffer.update(dm.id);
+              })
+              .catch((err) => logger("error", err));
 
-              taskBuffer.update("@" + user.id);
-            } else {
-              data.task.invalid.push(dest);
-              taskBuffer.reduce();
-            }
-          });
+            taskBuffer.update("@" + user.id);
+          } else {
+            data.task.invalid.push(dest);
+            taskBuffer.reduce();
+          }
         }
 
         // resolve mentioned channel(s)

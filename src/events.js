@@ -118,18 +118,18 @@ exports.listen = function (client) {
   //   messageHandler(config, message, null, true);
   //});
 
-  //
-  // Raw events
-  //
 
-  client.on("raw", (raw) => {
+  client.on('messageReactionAdd', (reaction, user) => {
     //
     // Listen for reactions
     //
 
-    if (raw.t === "MESSAGE_REACTION_ADD") {
-      react(raw.d, client);
+    // ignore bots and reaction spam
+    if (user.bot || reaction.count > 1) {
+      return;
     }
+
+    react(reaction, user);
   });
 
   //

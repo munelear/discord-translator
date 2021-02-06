@@ -216,7 +216,7 @@ module.exports = function (data) {
     // fetch author's nickname in the guild if the message was in a guild
     if (data.message.guild) {
       const guildMember = data.message.guild.member(sendData.author);
-      sendData.author.nickname = guildMember.nickname;
+      sendData.author.nickname = guildMember ? guildMember.nickname : null;
     }
   }
 

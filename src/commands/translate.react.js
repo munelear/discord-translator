@@ -8,12 +8,12 @@ const countryLangs = require("../core/country.langs");
 // translate a message through discord reaction (flag)
 // ---------------------------------------------------
 
-module.exports = function (data, client) {
+module.exports = async function (reaction, user) {
   //
   // Get country by emoji
   //
 
-  const emoji = data.emoji.name;
+  const emoji = reaction.emoji.name;
 
   if (emoji && countryLangs.hasOwnProperty(emoji)) {
     //
@@ -28,51 +28,30 @@ module.exports = function (data, client) {
     // Get message data
     //
 
-    fn.getMessage(
-      client,
-      data.message_id,
-      data.channel_id,
-      data.user_id,
-      (message, err) => {
-        if (err) {
-          return logger("error", err);
-        }
+    try {
+      // translate data
 
-        // ignore bots
+      const message = reaction.message;
+      message.translate = {
+        original: message.content,
+        to: langCheck(countryLangs[emoji].langs),
+        from: langCheck("auto"),
+        multi: true,
+      };
 
-        if (message.author.bot) {
-          return;
-        }
+      // message data
 
-        const flagExists = message.reactions.fetch(emoji);
+      message.message = message;
+      message.message.roleColor = fn.getRoleColor(message.message.member);
+      message.canWrite = true;
 
-        // prevent flag spam
+      //
+      // Start translation
+      //
 
-        if (flagExists) {
-          return;
-        }
-
-        // translate data
-
-        data.translate = {
-          original: message.content,
-          to: langCheck(countryLangs[emoji].langs),
-          from: langCheck("auto"),
-          multi: true,
-        };
-
-        // message data
-
-        data.message = message;
-        data.message.roleColor = fn.getRoleColor(data.message.member);
-        data.canWrite = true;
-
-        //
-        // Start translation
-        //
-
-        translate(data);
-      }
-    );
+      translate(message);
+    } catch(error) {
+      return logger("error", error);
+    }
   }
 };

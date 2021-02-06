@@ -91,7 +91,7 @@ const analyzeRows = function (data, i) {
 // Start translation
 // ------------------
 
-const startTranslation = function (data, i, row) {
+const startTranslation = async function (data, i, row) {
   const replyID = row.reply;
 
   //
@@ -127,7 +127,8 @@ const startTranslation = function (data, i, row) {
 
     const userID = row.dest.slice(1);
 
-    fn.getUser(data.client, userID, (user) => {
+    try {
+      const user = await fn.getUser(data.client, userID);
       if (user && user.createDM) {
         user
           .createDM()
@@ -136,9 +137,11 @@ const startTranslation = function (data, i, row) {
             data.forward = dm.id;
             sendTranslation(data);
           })
-          .catch((err) => logger("error", err));
       }
-    });
+      return;
+    } catch(err) {
+      return logger("error", err)
+    }
   }
 
   //
