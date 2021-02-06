@@ -6,7 +6,6 @@ const cmdArgs = require("./commands/args");
 // Listen for messages
 // ====================
 
-//eslint-disable-next-line no-unused-vars
 module.exports = function (config, message, edited, deleted) {
   const client = message.client;
   const bot = client.user;

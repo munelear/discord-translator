@@ -121,7 +121,6 @@ const startTranslation = async function (data, i, row) {
       text:
         data.footer.text +
         ` ‹ ${data.message.guild.name} | reply with ${replyID}:`,
-      //eslint-disable-next-line camelcase
       icon_url: data.message.guild.iconURL,
     };
 

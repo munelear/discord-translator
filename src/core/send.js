@@ -11,7 +11,6 @@ const sendBox = async function (data) {
   if (data.author) {
     data.author = {
       name: data.author.nickname || data.author.username,
-      //eslint-disable-next-line camelcase
       icon_url: data.author.displayAvatarURL(),
     };
   }
@@ -124,7 +123,6 @@ const sendAttachments = async function (data) {
 // Analyze Data and determine sending style (system message or author box)
 //
 
-//eslint-disable-next-line complexity
 module.exports = function (data) {
   var sendData = {
     title: data.title,

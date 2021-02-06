@@ -1,5 +1,3 @@
-/*eslint-disable no-irregular-whitespace*/
-
 const botSend = require("../core/send");
 const auth = require("../core/auth");
 const fn = require("../core/helpers");

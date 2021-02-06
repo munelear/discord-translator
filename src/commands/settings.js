@@ -156,10 +156,7 @@ const getSettings = function (data) {
               "reinvite through this link: \n" +
               data.config.inviteURL
           )
-          .then(
-            (
-              m //eslint-disable-line no-unused-vars
-            ) => {
+          .then((m) => {
               guild.leave();
             }
           )

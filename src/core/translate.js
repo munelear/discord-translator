@@ -108,9 +108,7 @@ const updateServerStats = function (message) {
 // Run translation
 // ----------------
 
-module.exports = function (
-  data //eslint-disable-line complexity
-) {
+module.exports = function (data) {
   //
   // Get message author
   //

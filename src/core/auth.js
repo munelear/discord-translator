@@ -1,4 +1,3 @@
-/*eslint-disable*/
 //
 // Add Your Discord Bot Token here
 // Discord Dev > My Apps > Bot > App Bot User > Token > Reveal

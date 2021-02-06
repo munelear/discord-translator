@@ -62,10 +62,7 @@ module.exports = function (data) {
     .fetchMessages({
       limit: limit,
     })
-    .then(
-      (
-        messages //eslint-disable-line complexity
-      ) => {
+    .then((messages) => {
         const messagesArray = messages.array().reverse();
         var lastAuthor;
         var chains = [];

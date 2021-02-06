@@ -25,7 +25,6 @@ module.exports = function (data) {
   // Get Stats from Database
   //
 
-  //eslint-disable-next-line complexity
   db.getStats(function (err, stats) {
     if (err) {
       return logger("error", err);
