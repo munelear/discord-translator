@@ -240,7 +240,6 @@ module.exports = function (
   //
 
   const opts = {
-    client: 'gtx',
     to: data.translate.to.valid[0].iso,
     from: from,
   };
