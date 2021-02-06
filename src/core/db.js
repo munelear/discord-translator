@@ -33,6 +33,13 @@ db.serialize(function () {
   // Add global server row
 
   db.run(`insert or replace into servers (id, lang) values ("bot", "en")`);
+
+  // upgrade task to replace any existing translations to the supported case used by google
+  // https://github.com/vitalets/google-translate-api/issues/33
+  db.run(`update tasks set lang_to = 'zh-CN' where lang_to = 'zh-cn'`);
+  db.run(`update tasks set lang_from = 'zh-CN' where lang_from = 'zh-cn'`);
+  db.run(`update tasks set lang_to = 'zh-TW' where lang_to = 'zh-TW'`);
+  db.run(`update tasks set lang_from = 'zh-TW' where lang_from = 'zh-TW'`);
 });
 
 // ---------------

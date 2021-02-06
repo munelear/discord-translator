@@ -228,12 +228,12 @@ module.exports = {
   "🇨🇳": {
     code: "cn",
     name: "China",
-    langs: ["zh-cn"],
+    langs: ["zh-CN"],
   },
   "🇨🇽": {
     code: "cx",
     name: "Christmas Island",
-    langs: ["zh-cn", "en", "ms"],
+    langs: ["zh-CN", "en", "ms"],
   },
   "🇨🇨": {
     code: "cc",
@@ -493,7 +493,7 @@ module.exports = {
   "🇭🇰": {
     code: "hk",
     name: "Hong Kong",
-    langs: ["zh-tw", "en"],
+    langs: ["zh-TW", "en"],
   },
   "🇭🇺": {
     code: "hu",
@@ -643,7 +643,7 @@ module.exports = {
   "🇲🇴": {
     code: "mo",
     name: "Macao",
-    langs: ["zh-tw", "pt"],
+    langs: ["zh-TW", "pt"],
   },
   "🇲🇰": {
     code: "mk",
@@ -993,7 +993,7 @@ module.exports = {
   "🇸🇬": {
     code: "sg",
     name: "Singapore",
-    langs: ["en", "ta", "zh-tw", "ms"],
+    langs: ["en", "ta", "zh-TW", "ms"],
   },
   "🇸🇰": {
     code: "sk",
@@ -1073,7 +1073,7 @@ module.exports = {
   "🇹🇼": {
     code: "tw",
     name: "Taiwan",
-    langs: ["zh-tw"],
+    langs: ["zh-TW"],
   },
   "🇹🇯": {
     code: "tj",
