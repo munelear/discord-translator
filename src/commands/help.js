@@ -276,7 +276,7 @@ const helpMessage = function (config, botname, param) {
     "```";
 
   //
-  // Proccess result
+  // Process result
   //
 
   const paramMap = {

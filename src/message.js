@@ -50,7 +50,7 @@ module.exports = function (config, message, edited, deleted) {
   };
 
   // ==================
-  // Proccess Commands
+  // Process Commands
   // ==================
 
   if (

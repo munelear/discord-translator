@@ -3,7 +3,7 @@ const db = require("../core/db");
 const logger = require("../core/logger");
 
 // -------------------------
-// Proccess settings params
+// Process settings params
 // -------------------------
 
 module.exports = function (data) {

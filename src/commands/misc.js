@@ -87,7 +87,7 @@ exports.shards = function (data) {
   }
 
   //
-  // Get proccess/shard uptime
+  // Get process/shard uptime
   //
 
   const shardErr = function (err) {
@@ -164,7 +164,7 @@ exports.shards = function (data) {
 };
 
 // ======================
-// Current proccess info
+// Current process info
 // ======================
 
 exports.proc = function (data) {
@@ -173,7 +173,7 @@ exports.proc = function (data) {
   }
 
   //
-  // Get proccess data
+  // Get process data
   //
 
   const title = `**\`${process.title}\`** `;
@@ -220,7 +220,7 @@ exports.proc = function (data) {
    `;
 
   //
-  // Get proccess/shard uptime
+  // Get process/shard uptime
   //
   const procUptime = moment.duration(Math.round(process.uptime()), "seconds").format("D [days], H [hrs], m [mins], s [secs]");
   const shardUptime = moment.duration(data.message.client.uptime).format("D [days], H [hrs], m [mins], s [secs]");

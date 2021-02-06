@@ -149,7 +149,7 @@ exports.listen = function (client) {
   });
 
   //
-  // Proccess-related errors
+  // Process-related errors
   //
 
   process.on("uncaughtException", (err) => {

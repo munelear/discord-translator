@@ -69,7 +69,7 @@ const errorLog = function (error, subtype) {
     db: ":outbox_tray:  Database Error",
     uncaught: ":japanese_goblin:  Uncaught Exception",
     unhandled: ":japanese_ogre:  Unhandled promise rejection",
-    warning: ":exclamation:  Proccess Warning",
+    warning: ":exclamation:  Process Warning",
     api: ":boom:  External API Error",
     shardFetch: ":pager:  Discord - shard.fetchClientValues",
   };

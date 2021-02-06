@@ -32,7 +32,7 @@ module.exports = function (data) {
       });
     }
 
-    data.proccess = true;
+    data.process = true;
 
     for (var i = 0; i < data.rows.length; i++) {
       analyzeRows(data, i);
@@ -62,10 +62,10 @@ const analyzeRows = function (data, i) {
       const replyCon = data.message.content.slice(replyIndex + 1);
 
       if (reply === row.reply) {
-        data.proccess = true;
+        data.process = true;
         data.message.content = replyCon;
       } else {
-        data.proccess = false;
+        data.process = false;
       }
     }
   }
@@ -151,11 +151,11 @@ const startTranslation = function (data, i, row) {
 };
 
 // --------------
-// Proccess task
+// Process task
 // --------------
 
 const sendTranslation = function (data) {
-  if (data.proccess) {
+  if (data.process) {
     if (
       data.message.content === "" &&
       data.message.attachments.array().length > 0

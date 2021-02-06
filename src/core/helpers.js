@@ -100,8 +100,8 @@ exports.arraySum = function (array) {
 //
 
 exports.getRoleColor = function (member) {
-  if (member && member.highestRole && member.highestRole.color) {
-    return member.highestRole.color;
+  if (member) {
+    return member.displayColor;
   }
   return null;
 };

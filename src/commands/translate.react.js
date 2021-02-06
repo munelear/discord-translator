@@ -17,7 +17,7 @@ module.exports = function (data, client) {
 
   if (emoji && countryLangs.hasOwnProperty(emoji)) {
     //
-    // Stop proccessing if country has no langs / null
+    // Stop processing if country has no langs / null
     //
 
     if (!countryLangs[emoji].langs) {

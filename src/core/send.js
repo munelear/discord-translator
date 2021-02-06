@@ -1,6 +1,5 @@
 const colors = require("./colors");
 const fn = require("./helpers");
-const db = require("./db");
 const logger = require("./logger");
 const discord = require("discord.js");
 
@@ -11,9 +10,9 @@ const discord = require("discord.js");
 const sendBox = async function (data) {
   if (data.author) {
     data.author = {
-      name: data.author.username,
+      name: data.author.nickname || data.author.username,
       //eslint-disable-next-line camelcase
-      icon_url: data.author.displayAvatarURL,
+      icon_url: data.author.displayAvatarURL(),
     };
   }
 
@@ -53,19 +52,13 @@ const sendBox = async function (data) {
           const badUser = data.channel.recipient;
           errMsg = `@${badUser.username}#${badUser.discriminator}\n` + err;
 
-          db.removeTask(data.origin.id, `@${badUser.id}`, function (er) {
-            if (er) {
-              return logger("error", er);
-            }
-
-            return data.origin.send(
-              `:no_entry: User ${badUser} cannot recieve direct messages ` +
-                `by bot because of **privacy settings**.\n\n__Auto ` +
-                `translation has been stopped. To fix this:__\n` +
+          await data.origin.send(
+              `:no_entry: User ${badUser} cannot receive direct messages ` +
+                `by bot because of **privacy settings**.\n\n__To fix this:__\n` +
                 "```prolog\nServer > Privacy Settings > " +
-                "'Allow direct messages from server members'\n```"
+                "'Allow direct messages from server members'\n```\n\n" +
+                `Alternatively, disable the auto translation task for this user.`
             );
-          });
         }
 
         logger("error", errMsg);
@@ -218,6 +211,12 @@ module.exports = function (data) {
 
     if (data.author) {
       sendData.author = data.author;
+    }
+
+    // fetch author's nickname in the guild if the message was in a guild
+    if (data.message.guild) {
+      const guildMember = data.message.guild.member(sendData.author);
+      sendData.author.nickname = guildMember.nickname;
     }
   }
 
