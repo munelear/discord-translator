@@ -1,6 +1,5 @@
 const sqlite3 = require("sqlite3").verbose();
 const db = new sqlite3.cached.Database("./translator.db");
-const autoTranslate = require("./auto");
 const logger = require("./logger");
 
 // -------------------
@@ -104,7 +103,7 @@ exports.updateServerLang = function (id, lang, cb) {
 // Get Channel Tasks
 // ------------------
 
-exports.channelTasks = function (data) {
+exports.channelTasks = function (data, cb) {
   var id = data.message.channel.id;
 
   if (data.message.channel.type === "dm") {
@@ -116,9 +115,7 @@ exports.channelTasks = function (data) {
       `select dest, reply, lang_to, lang_from from tasks` +
         ` where origin = "${id}" and active = "1"`,
       function (err, rows) {
-        data.err = err;
-        data.rows = rows;
-        autoTranslate(data);
+        cb(err, rows);
       }
     );
   });

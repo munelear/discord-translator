@@ -3,35 +3,8 @@ const logger = require("./logger");
 const botSend = require("./send");
 const fn = require("./helpers");
 
-// -----------------
-// Get data from db
-// -----------------
-
 module.exports = function (data) {
-  if (data.err) {
-    return logger("error", data.err);
-  }
-
   if (data.rows.length > 0) {
-    //
-    // Ignore bot commands
-    //
-    // * Disabled until a standard for commands exists
-    //
-    // const ignoreRegex = /^\S{0,20}[~!$%^&*_\-+:;?=>.,|\\/]\w+(?:.*)?$/;
-    //
-    // Add !i to end of message to ignore it instead
-    //
-
-    if (
-      //ignoreRegex.test(data.message.content) ||
-      data.message.content.endsWith("!i")
-    ) {
-      return data.message.react("➖").catch((err) => {
-        return logger("dev", `${err}\n\n'# Cannot react`);
-      });
-    }
-
     data.process = true;
 
     for (var i = 0; i < data.rows.length; i++) {

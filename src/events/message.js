@@ -1,4 +1,5 @@
 const cmdArgs = require("./../commands/args");
+const autoTranslate = require("./../core/auto");
 
 module.exports = (bot, message) => {
   // Ignore messages by bots
@@ -34,5 +35,12 @@ module.exports = (bot, message) => {
   }
 
   // Check for automatic tasks
-  return bot.db.channelTasks(data);
+  bot.db.channelTasks(data, (err, rows) => {
+    if (err) {
+      return bot.logger("error", err);
+    }
+
+    data.rows = rows;
+    autoTranslate(data);
+  });
 };
