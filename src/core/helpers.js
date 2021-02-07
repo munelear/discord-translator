@@ -1,13 +1,8 @@
-const logger = require("./logger");
-
 // =================
 // Helper Functions
 // =================
 
-//
 // Buffer end checker
-//
-
 exports.bufferEnd = function (arrOriginal, arrFinal) {
   if (arrOriginal.length === arrFinal.length) {
     return true;
@@ -15,42 +10,27 @@ exports.bufferEnd = function (arrOriginal, arrFinal) {
   return false;
 };
 
-//
 // Check user permission
-//
-
 exports.checkPerm = function (member, channel, perm) {
   return channel.permissionsFor(member).has(perm);
 };
 
-//
 // Get key name of object by its value
-//
-
 exports.getKeyByValue = function (object, value) {
   return Object.keys(object).find((key) => object[key] === value);
 };
 
-//
 // Remove duplicates from array
-//
-
 exports.removeDupes = function (array) {
   return Array.from(new Set(array));
 };
 
-//
 // Replace all matches in string
-//
-
 exports.replaceAll = function (str, search, replacement) {
   return str.replace(new RegExp(search, "g"), replacement);
 };
 
-//
 // Sort array by specific key
-//
-
 exports.sortByKey = function (array, key) {
   return array.sort(function (a, b) {
     var x = a[key];
@@ -59,10 +39,7 @@ exports.sortByKey = function (array, key) {
   });
 };
 
-//
 // Split string to array if not array
-//
-
 exports.arraySplit = function (input, sep) {
   if (input.constructor === Array && input.length > 0) {
     return input;
@@ -70,10 +47,7 @@ exports.arraySplit = function (input, sep) {
   return input.split(sep);
 };
 
-//
 // Split string to chunks
-//
-
 exports.chunkString = function (str, len) {
   var _size = Math.ceil(str.length / len);
   var _ret = new Array(_size);
@@ -87,18 +61,12 @@ exports.chunkString = function (str, len) {
   return _ret;
 };
 
-//
 // Get sum of array values (numbers)
-//
-
 exports.arraySum = function (array) {
   return array.reduce((a, b) => a + b, 0);
 };
 
-//
 // Get Highest Role Color
-//
-
 exports.getRoleColor = function (member) {
   if (member) {
     return member.displayColor;
@@ -106,11 +74,7 @@ exports.getRoleColor = function (member) {
   return null;
 };
 
-//
 // Get user
-//
-
-exports.getUser = function (client, userID, cb) {
-  const user = client.users.fetch(userID);
-
+exports.getUser = async function (client, userID) {
+  return await client.users.fetch(userID);
 };

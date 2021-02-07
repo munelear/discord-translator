@@ -1,42 +1,31 @@
 const discord = require("discord.js");
 const auth = require("./auth");
 const colors = require("./colors").get;
-const spacer = "​                                                          ​";
 
 const hook = new discord.WebhookClient(
   auth.loggerWebhookID,
   auth.loggerWebhookToken
 );
 
-module.exports = function (type, data, subtype = null) {
-  const logTypes = {
-    dev: devConsole,
-    error: errorLog,
-    warn: warnLog,
-    custom: hookSend,
-    guildJoin: logJoin,
-    guildLeave: logLeave,
-  };
-
-  if (logTypes.hasOwnProperty(type)) {
-    return logTypes[type](data, subtype);
-  }
-};
-
-// -------------------
 // Log data to console
-// -------------------
-
-const devConsole = function (data) {
-  if (auth.dev) {
-    return console.log(data);
+const log = (data, type, subtype) => {
+  const message = `[${type}${subtype ? `:${subtype}` : ''}]: ` + data;
+  if (type == 'error') {
+    return console.error(message);
+  } else {
+    return console.log(message);
   }
 };
 
-// -----------
-// Hook Sender
-// -----------
+// only log if dev mode is enabled
+const devConsole = function (data, type, subtype) {
+  if (auth.dev) {
+    return log(data, type, subtype);
+  }
+};
 
+
+// Hook Sender
 const hookSend = function (data) {
   const embed = new discord.MessageEmbed({
     title: data.title,
@@ -51,10 +40,7 @@ const hookSend = function (data) {
   });
 };
 
-// ------------
 // Error Logger
-// ------------
-
 const errorLog = function (error, subtype) {
   let errorTitle = null;
 
@@ -83,6 +69,7 @@ const errorLog = function (error, subtype) {
     color: "err",
     msg: "```json\n" + error.toString() + "\n```",
   });
+  log(`${errorTitle}: ${error.toString()}`, 'error', subtype);
 };
 
 // ---------------
@@ -94,6 +81,7 @@ const warnLog = function (warning) {
     color: "warn",
     msg: warning,
   });
+  log(warning, 'warn');
 };
 
 // ---------------
@@ -101,21 +89,13 @@ const warnLog = function (warning) {
 // --------------
 
 const logJoin = function (guild) {
+  const message = `Joined **${guild.name}** (${guild.id}), owner ${guild.owner.user.username}#${guild.owner.user.discriminator}`;
   hookSend({
     color: "ok",
     title: "Joined Guild",
-    msg:
-      `:white_check_mark:  **${guild.name}**\n` +
-      "```md\n> " +
-      guild.id +
-      "\n@" +
-      guild.owner.user.username +
-      "#" +
-      guild.owner.user.discriminator +
-      "\n```" +
-      spacer +
-      spacer,
+    msg: message
   });
+  log(message, 'GUILDJOIN');
 };
 
 // ----------------
@@ -123,19 +103,29 @@ const logJoin = function (guild) {
 // ----------------
 
 const logLeave = function (guild) {
+  const message = `Left **${guild.name}** (${guild.id}), owner ${guild.owner.user.username}#${guild.owner.user.discriminator}`;
   hookSend({
     color: "warn",
     title: "Left Guild",
-    msg:
-      `:regional_indicator_x:  **${guild.name}**\n` +
-      "```md\n> " +
-      guild.id +
-      "\n@" +
-      guild.owner.user.username +
-      "#" +
-      guild.owner.user.discriminator +
-      "\n```" +
-      spacer +
-      spacer,
+    msg: message
   });
+  log(message, 'GUILDLEAVE');
+};
+
+const LOG_TYPES = {
+  dev: devConsole,
+  error: errorLog,
+  warn: warnLog,
+  custom: hookSend,
+  guildJoin: logJoin,
+  guildLeave: logLeave,
+};
+
+module.exports = function (type, data, subtype = null) {
+  const logCb = log
+  if (LOG_TYPES.hasOwnProperty(type)) {
+    logCb = LOG_TYPES[type](data, subtype);
+  }
+
+  return logCb(data, type, subtype);
 };

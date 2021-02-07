@@ -122,11 +122,8 @@ module.exports = function (data) {
   }
 
   output.to = langCheck(extractParam("to", output.params, "default", true));
-
   output.from = langCheck(extractParam("from", output.params, "auto", true));
-
   output.for = extractParam("for", output.params, ["me"], true);
-
   output.num = extractNum(output.params);
 
   //
@@ -182,7 +179,7 @@ module.exports = function (data) {
     // log command data (dev)
     //
 
-    logger("cmd", data);
+    logger("cmd", JSON.stringify(data));
 
     //
     // Legal Commands
