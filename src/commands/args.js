@@ -12,7 +12,6 @@ const cmdList = require("./list");
 const cmdStats = require("./stats");
 const cmdMisc = require("./misc");
 const cmdSettings = require("./settings");
-const cmdTranslateLast = require("./translate.last");
 const cmdTranslateThis = require("./translate.this");
 const cmdTranslateAuto = require("./translate.auto");
 const cmdTranslateStop = require("./translate.stop");
@@ -191,17 +190,13 @@ module.exports = function (data) {
 
     const cmdMap = {
       this: cmdTranslateThis,
-      last: cmdTranslateLast,
       auto: cmdTranslateAuto,
       stop: cmdTranslateStop,
       help: cmdHelp,
       info: cmdHelp,
       list: cmdList,
       stats: cmdStats,
-      version: cmdMisc.version,
       invite: cmdMisc.invite,
-      shards: cmdMisc.shards,
-      proc: cmdMisc.proc,
       settings: cmdSettings,
     };
 

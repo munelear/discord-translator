@@ -1,5 +1,3 @@
-const stripIndent = require("common-tags").stripIndent;
-const oneLine = require("common-tags").oneLine;
 const auth = require("./core/auth");
 const logger = require("./core/logger");
 const messageHandler = require("./message");
@@ -7,8 +5,6 @@ const db = require("./core/db");
 const setStatus = require("./core/status");
 const react = require("./commands/translate.react");
 
-const botVersion = "0.5.1";
-const botCreator = "munelear#1358";
 
 exports.listen = function (client) {
   var config;
@@ -23,9 +19,6 @@ exports.listen = function (client) {
     //
 
     config = {
-      version: botVersion,
-      botServer: "https://discord.gg/ZJukUDV",
-      inviteURL: auth.invite,
       owner: auth.botOwner,
       defaultLanguage: "en",
       translateCmd: "!translate",
@@ -38,57 +31,11 @@ exports.listen = function (client) {
     };
 
     let shard = client.shard;
+    const shardMessage = shard ? `(shard ${shard.id}, ${shard.id+1}/${shard.count})` : ``
 
-    if (!shard) {
-      shard = {
-        id: 0,
-        count: 1,
-      };
-    }
-
-    if (shard.id === 0) {
-      console.log(stripIndent`
-            ----------------------------------------
-            @${client.user.username} Bot is now online
-            v.${config.version} | ID: ${client.user.id}
-            Made by: ${botCreator}
-            ----------------------------------------
-         `);
-    }
-
-    console.log(oneLine`
-         Shard#${shard.id}:  ${shard.id + 1} / ${shard.count} online -
-         ${client.guilds.cache.size.toLocaleString()} guilds,
-         ${client.channels.cache.size.toLocaleString()} channels,
-         ${client.users.cache.size.toLocaleString()} users
-      `);
+    console.log(`${client.user.tag}${shardMessage} online and ready`);
 
     setStatus(client.user, "online");
-
-    //
-    // All shards are online
-    //
-
-    if (shard.id === shard.count - 1) {
-      //
-      // Log connection event
-      //
-
-      console.log(stripIndent`
-            ----------------------------------------
-            All shards are online
-            ----------------------------------------
-         `);
-
-      logger("custom", {
-        color: "ok",
-        msg: oneLine`
-               :wave:  **${client.user.username}**
-               is now online - \`v.${botVersion}\` -
-               **${shard.count}** shards
-            `,
-      });
-    }
   });
 
   //

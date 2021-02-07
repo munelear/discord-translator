@@ -18,7 +18,8 @@ exports.botOwner = process.env.BOT_OWNER;
 // Invite URL (OAuth2)
 //
 
-exports.invite = process.env.INVITE_URL;
+exports.invite = process.env.DISABLE_INVITE ? null : (process.env.INVITE_URL || null);
+
 
 //
 // Add Webhook info for logging (optional)
@@ -26,12 +27,6 @@ exports.invite = process.env.INVITE_URL;
 
 exports.loggerWebhookID = process.env.LOGGER_WEBHOOK_ID || null;
 exports.loggerWebhookToken = process.env.LOGGER_WEBHOOK_TOKEN || null;
-
-//
-// Changelog URL (optional)
-//
-
-exports.changelog = process.env.CHANGELOG_URL || null;
 
 //
 // Developer Mode

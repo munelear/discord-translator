@@ -1,26 +1,9 @@
 const langCheck = require("../core/lang.check");
 const botSend = require("../core/send");
 const db = require("../core/db");
-const auth = require("../core/auth");
 const logger = require("../core/logger");
 
 module.exports = function (data) {
-  //
-  // Version Info
-  //
-
-  var version = `**\`${data.config.version}\`**`;
-
-  if (auth.changelog) {
-    version += ` ([changelog](${auth.changelog}))`;
-  }
-
-  if (data.cmd.main === "version") {
-    data.color = "info";
-    data.text = `:robot:  Current bot version is ${version}`;
-    return botSend(data);
-  }
-
   //
   // Get Stats from Database
   //
@@ -44,7 +27,6 @@ module.exports = function (data) {
       `**\`${botLang.name} (${botLang.native})\`` +
       `**\n\n:bar_chart:  Translated **\`${stats.totalCount}\`** messages ` +
       `across **\`${stats.totalServers}\`** servers\n\n` +
-      `:robot:  Version:  ${version}\n\n` +
       `:repeat:  Automatic translation:  ` +
       `**\`${activeTasks}\`**  channels and  ` +
       `**\`${stats.activeUserTasks}\`**  users`;

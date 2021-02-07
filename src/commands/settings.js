@@ -96,102 +96,12 @@ const getSettings = function (data) {
     );
   };
 
-  // ---------------
-  // Disconnect bot
-  // ---------------
-
-  const disconnect = function (data) {
-    data.color = "info";
-    data.text = data.bot.username + " is now disconnected from the server.";
-    botSend(data);
-
-    return setTimeout(function () {
-      data.message.channel.guild.leave();
-    }, 3000);
-  };
-
-  // ---------------
-  // List Servers
-  // ---------------
-
-  const listServers = function (data) {
-    if (data.message.author.id === data.config.owner) {
-      data.text = "__**Active Servers**__ - ";
-
-      const activeGuilds = data.client.guilds.array();
-
-      data.text += `${activeGuilds.length}\n\n`;
-
-      activeGuilds.forEach((guild) => {
-        data.text += "```md\n";
-        data.text += `> ${guild.id}\n# ${guild.name}\n`;
-        data.text += `@${guild.owner.user.username}#`;
-        data.text += guild.owner.user.discriminator + "\n```";
-      });
-
-      const splitOpts = {
-        maxLength: 1000,
-        char: "",
-      };
-
-      return data.message.channel.send(data.text, { split: splitOpts });
-    }
-  };
-
-  // --------------------------------------
-  // Update bot (disconnects from servers)
-  // --------------------------------------
-
-  const updateBot = function (data) {
-    if (data.message.author.id === data.config.owner) {
-      const activeGuilds = data.client.guilds.array();
-      data.color = "info";
-      data.text = `Updating bot for **${activeGuilds.length}** servers.`;
-      botSend(data);
-
-      activeGuilds.forEach((guild) => {
-        guild.owner
-          .send(
-            "Hello, this bot has been updated to a new version, please " +
-              "reinvite through this link: \n" +
-              data.config.inviteURL
-          )
-          .then((m) => {
-              guild.leave();
-            }
-          )
-          .catch((err) => logger("error", err));
-      });
-    }
-  };
-
-  // --------------------------------------
-  // Fix guild mismatch
-  // --------------------------------------
-
-  const dbFix = function (data) {
-    if (data.message.author.id === data.config.owner) {
-      const activeGuilds = data.client.guilds.array();
-      data.color = "info";
-      data.text = `Updating db for **${activeGuilds.length}** servers.`;
-      botSend(data);
-
-      activeGuilds.forEach((guild) => {
-        db.addServer(guild.id, data.config.defaultLanguage);
-      });
-    }
-  };
-
   // --------------------------
   // Execute command if exists
   // --------------------------
 
   const validSettings = {
-    setlang: setLang,
-    disconnect: disconnect,
-    listservers: listServers,
-    dbfix: dbFix,
-    updatebot: updateBot,
+    setlang: setLang
   };
 
   const settingParam = data.cmd.params.split(" ")[0].toLowerCase();

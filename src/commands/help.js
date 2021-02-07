@@ -1,5 +1,4 @@
 const botSend = require("../core/send");
-const auth = require("../core/auth");
 
 // ------------------------
 // Bot Help / Command List
@@ -30,15 +29,6 @@ module.exports = function (data) {
 
 const helpSection = function (data) {
   var section = `${data.icon}  **[${data.title}](${data.link})**\n\n`;
-  //`\`${data.cmd} help ${data.help}\`\n\n`
-  //"\n```cpp\n" +
-  //`Command: "` +
-  //`${data.cmd} ${data.cmd} ${data.args}"\n\n` +
-  //`Example: "` +
-  //`${data.cmd} ${data.cmd} ${data.example}"\n` +
-  //`Help: "` +
-  //`${data.cmd} help ${data.help}"` +
-  //"\n```\n"
   return section;
 };
 
@@ -54,7 +44,7 @@ const helpMessage = function (config, botname, param) {
   const cmd = config.translateCmdShort;
 
   const info =
-    `**${botname} Bot - v.${config.version}**\n` +
+    `**${botname} Bot**\n` +
     `Translates Discord messages (based on \`Google API\`).\n\n`;
 
   //
@@ -64,7 +54,7 @@ const helpMessage = function (config, botname, param) {
   const basics =
     helpSection({
       config: config,
-      title: "Translate by Reacting `new`",
+      title: "Translate by Reacting",
       link:
         "https://github.com/munelear/discord-translator/wiki/Translate-with-Emoji-Reaction",
       icon: ":flag_white:",
@@ -83,17 +73,6 @@ const helpMessage = function (config, botname, param) {
       help: "custom",
       args: "to [lang] from [lang]: [msg]",
       example: "to french from english: hello",
-    }) +
-    helpSection({
-      config: config,
-      title: "Translate Last Message",
-      link:
-        "https://github.com/munelear/discord-translator/wiki/Translate-Last-Message",
-      icon: ":arrow_double_up:",
-      cmd: "last",
-      help: "last",
-      args: "[count] from [lang] to [lang]",
-      example: "3 from german to spanish",
     }) +
     helpSection({
       config: config,
@@ -126,38 +105,7 @@ const helpMessage = function (config, botname, param) {
       help: "settings",
       args: "setLang to [lang]",
       example: "setLang to italian",
-    }) +
-    helpSection({
-      config: config,
-      title: "Report Bugs / Request Features",
-      link: config.botServer,
-      icon: ":raising_hand::skin-tone-3:",
     });
-
-  //
-  // Last Message (last)
-  //
-
-  const last =
-    `__**Translate Last Message(s)**__\n\n` +
-    `Translates last message chain(s) in channel. A chain is a collection of ` +
-    `messages by the same author, to keep things simple.\n` +
-    "```md\n" +
-    `# Command\n` +
-    `> ${cmd} last \n` +
-    `> ${cmd} last [n] to [lang] from [lang] \n\n` +
-    `# Parameters\n` +
-    `> to [lang] - defaults to server default language\n` +
-    `> to [lang, lang, ...] - translates to multiple languages\n` +
-    `> from [lang] - defaults to automatic detection\n` +
-    `> [n] - number of chains to translate, default is 1\n` +
-    `> [-n] - negative number means only one chain is translated\n\n` +
-    `# Examples\n` +
-    `* ${cmd} last 2 \n` +
-    `* ${cmd} last to english \n` +
-    `* ${cmd} last to english, german, french \n` +
-    `* ${cmd} last -6 to english from german` +
-    "```";
 
   //
   // Flag Emoji Reaction
@@ -251,7 +199,6 @@ const helpMessage = function (config, botname, param) {
     `> ${cmd} help\n` +
     `> ${cmd} help [command]\n\n` +
     `# Statistics\n` +
-    `> ${cmd} version \n` +
     `> ${cmd} stats \n` +
     `> ${cmd} stats global \n` +
     `> ${cmd} stats server \n\n` +
@@ -270,9 +217,7 @@ const helpMessage = function (config, botname, param) {
     `These commands are available only to admins in server channels.` +
     "```md\n" +
     `# Set default server language\n` +
-    `> ${cmd} settings setLang to [lang]\n\n` +
-    `# Disconnect bot from server\n` +
-    `> ${cmd} settings disconnect \n` +
+    `> ${cmd} settings setLang to [lang]`
     "```";
 
   //
@@ -283,7 +228,6 @@ const helpMessage = function (config, botname, param) {
     basics: info + basics,
     custom: custom,
     react: react,
-    last: last,
     auto: auto,
     stop: stop,
     misc: misc,
