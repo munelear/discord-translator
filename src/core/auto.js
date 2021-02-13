@@ -1,7 +1,5 @@
 const translate = require("./translate");
-const logger = require("./logger");
 const botSend = require("./send");
-const fn = require("./helpers");
 
 module.exports = function (data) {
   if (data.rows.length > 0) {
@@ -13,64 +11,25 @@ module.exports = function (data) {
   }
 };
 
-// ---------------------
 // Analyze rows in loop
-// ---------------------
-
-const analyzeRows = function (data, i) {
+function analyzeRows(data, i) {
   const row = data.rows[i];
 
-  //
   // Set forward channel for sender
-  //
-
   if (row.dest !== data.message.channel.id) {
     data.forward = row.dest;
     data.embeds = data.message.embeds;
     data.attachments = data.message.attachments;
-
-    if (data.message.channel.type === "dm") {
-      const replyIndex = data.message.content.indexOf(":");
-      const reply = data.message.content.slice(0, replyIndex);
-      const replyCon = data.message.content.slice(replyIndex + 1);
-
-      if (reply === row.reply) {
-        data.process = true;
-        data.message.content = replyCon;
-      } else {
-        data.process = false;
-      }
-    }
   }
 
-  //
   // Set translation options
-  //
-
   data.translate = {
     original: data.message.content,
     to: { valid: [{ iso: row.lang_to }] },
     from: { valid: [{ iso: row.lang_from }] },
   };
 
-  //
-  // Start translation
-  //
-
-  startTranslation(data, i, row);
-};
-
-// ------------------
-// Start translation
-// ------------------
-
-const startTranslation = async function (data, i, row) {
-  const replyID = row.reply;
-
-  //
   // Add footer to forwarded messages
-  //
-
   data.footer = {
     text: "via ",
   };
@@ -79,65 +38,13 @@ const startTranslation = async function (data, i, row) {
     data.footer.text += "#" + data.message.channel.name;
   }
 
-  if (data.message.channel.type === "dm") {
-    data.footer.text += "DM";
-  }
-
-  const footerOriginal = data.footer;
-
-  //
-  // Sending to user/DM
-  //
-
-  if (row.dest.startsWith("@")) {
-    const footerExtra = {
-      text:
-        data.footer.text +
-        ` ‹ ${data.message.guild.name} | reply with ${replyID}:`,
-      icon_url: data.message.guild.iconURL,
-    };
-
-    const userID = row.dest.slice(1);
-
-    try {
-      const user = await fn.getUser(data.client, userID);
-      if (user && user.createDM) {
-        user
-          .createDM()
-          .then((dm) => {
-            data.footer = footerExtra;
-            data.forward = dm.id;
-            sendTranslation(data);
-          })
-      }
-      return;
-    } catch(err) {
-      return logger("error", err)
-    }
-  }
-
-  //
   // Sending to other channel
-  //
-  else {
-    data.footer = footerOriginal;
-    sendTranslation(data);
-  }
-};
-
-// --------------
-// Process task
-// --------------
-
-const sendTranslation = function (data) {
   if (data.process) {
-    if (
-      data.message.content === "" &&
-      data.message.attachments.array().length > 0
-    ) {
+    if (data.message.content === "" &&
+        data.message.attachments.array().length > 0) {
       return botSend(data);
     }
 
     return translate(data);
   }
-};
+}

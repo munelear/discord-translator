@@ -1,242 +1,44 @@
-const botSend = require("../core/send");
+exports.run = (bot, message, context) => {
+  // If no specific command is called, show all filtered commands.
+  if (!context.args[0]) {
+    const myCommands = bot.commands.getCommands(context);
 
-// ------------------------
-// Bot Help / Command List
-// ------------------------
+    // Here we have to get the command names only, and we use that array to get the longest name.
+    // This make the help commands "aligned" in the output.
+    const commandNames = Object.keys(myCommands);
+    const longest = commandNames.reduce((long, str) => Math.max(long, str.length), 0);
 
-module.exports = function (data) {
-  data.color = "info";
-
-  //
-  // Detect if help is needed for specific command
-  //
-
-  var getHelpWith = "basics";
-
-  if (data.cmd.params) {
-    const cleanParam = data.cmd.params.toLocaleLowerCase().trim();
-    getHelpWith = cleanParam;
-  }
-
-  data.text = helpMessage(data.config, data.bot.username, getHelpWith);
-
-  return botSend(data);
-};
-
-// ------------------------
-// Help Section
-// ------------------------
-
-const helpSection = function (data) {
-  var section = `${data.icon}  **[${data.title}](${data.link})**\n\n`;
-  return section;
-};
-
-// ------------------------
-// Help Text
-// ------------------------
-
-const helpMessage = function (config, botname, param) {
-  //
-  // Bot Info
-  //
-
-  const cmd = config.translateCmdShort;
-
-  const info =
-    `**${botname} Bot**\n` +
-    `Translates Discord messages (based on \`Google API\`).\n\n`;
-
-  //
-  // Help Basics
-  //
-
-  const basics =
-    helpSection({
-      config: config,
-      title: "Translate by Reacting",
-      link:
-        "https://github.com/munelear/discord-translator/wiki/Translate-with-Emoji-Reaction",
-      icon: ":flag_white:",
-      cmd: null,
-      help: "react",
-      args: null,
-      example: null,
-    }) +
-    helpSection({
-      config: config,
-      title: "Translate Custom Text",
-      link:
-        "https://github.com/munelear/discord-translator/wiki/Translate-Custom-Text",
-      icon: ":abc:",
-      cmd: "this",
-      help: "custom",
-      args: "to [lang] from [lang]: [msg]",
-      example: "to french from english: hello",
-    }) +
-    helpSection({
-      config: config,
-      title: "Translate Channel (Automatic)",
-      link:
-        "https://github.com/munelear/discord-translator/wiki/Translate-Channel-Automatic",
-      icon: ":hash:",
-      cmd: "channel",
-      help: "auto",
-      args: "from [lang] to [lang] for [@/#]",
-      example: "from hebrew to arabic for me",
-    }) +
-    helpSection({
-      config: config,
-      title: "Stats",
-      link:
-        "https://github.com/munelear/discord-translator/wiki/Get-Statistics",
-      icon: ":bar_chart:",
-      cmd: "stats",
-      help: "misc",
-      args: "stats [server/global]",
-      example: "",
-    }) +
-    helpSection({
-      config: config,
-      title: "Settings",
-      link: "https://github.com/munelear/discord-translator/wiki/Settings",
-      icon: ":gear:",
-      cmd: "settings",
-      help: "settings",
-      args: "setLang to [lang]",
-      example: "setLang to italian",
+    let currentCategory = '';
+    let output = `= Command List =\n\n[Use ${context.prefix} help <commandname> for details]\n`;
+    const sorted = Object.values(myCommands).sort((p, c) => p.help.category > c.help.category ? 1 :  p.name > c.name && p.help.category === c.help.category ? 1 : -1 );
+    sorted.forEach( c => {
+      const cat = c.help.category;
+      if (currentCategory !== cat) {
+        output += `\u200b\n== ${cat} ==\n`;
+        currentCategory = cat;
+      }
+      output += `${context.prefix} ${c.name}${' '.repeat(longest - c.name.length)} :: ${c.help.description}\n`;
     });
-
-  //
-  // Flag Emoji Reaction
-  //
-
-  const react =
-    `__**Translate by reaction**__\n\n` +
-    `Translates a message in the server when you react to it with a ` +
-    `flag emoji. For example: :flag_ca:, :flag_it:, :flag_eg:, :flag_jp:`;
-
-  //
-  // Custom message (this)
-  //
-
-  const custom =
-    `__**Translate Custom Message**__\n\n` +
-    `Translates a custom message entered by user.\n` +
-    "```md\n" +
-    `# Command\n` +
-    `> ${cmd} this: [msg] \n` +
-    `> ${cmd} this to [lang] from [lang]: [msg] \n\n` +
-    `# Parameters\n` +
-    `> to [lang] - defaults to server default language\n` +
-    `> to [lang, lang, ...] - translates to multiple languages\n` +
-    `> from [lang] - defaults to automatic detection\n\n` +
-    `# Examples\n` +
-    `* ${cmd} this: bonjour \n` +
-    `* ${cmd} this to spanish: hello world \n` +
-    `* ${cmd} this to arabic, hebrew: I love you \n` +
-    `* ${cmd} this to de from en: how are you? \n` +
-    "```";
-
-  //
-  // Auto translate (channel)
-  //
-
-  const auto =
-    `__**Auto Translate Channels/Users**__\n\n` +
-    `Automatically translates any new messages in channel and forwards them ` +
-    `to you. Admins/mods can set forwarding to other channels or users in ` +
-    `server. Messages in forwarded channels will also be sent back to origin*.` +
-    "```md\n" +
-    `# Command\n` +
-    `> ${cmd} channel \n` +
-    `> ${cmd} channel to [lang] from [lang] for [me/@/#] \n` +
-    `> ${cmd} stop for [me/@/#] \n\n` +
-    `# Parameters\n` +
-    `> to [lang] - defaults to server default language\n` +
-    `> from [lang] -  language to translate from \n` +
-    `> for [me/@/#] - defaults to "me", admins can use mentions \n\n` +
-    `# Examples\n` +
-    `* ${cmd} channel to english from chinese \n` +
-    `* ${cmd} channel to en from de for #englishChannel \n` +
-    `* ${cmd} channel to de from en for @steve \n` +
-    `* ${cmd} channel to en from ru for #ch1, #ch2, #usr1 \n` +
-    "```" +
-    "\n* Translated messages that are forwarded to users include a special id " +
-    "for replying. Simply copy the code and paste into DM window before your " +
-    "message to send a response, example: `XX123: your message here`.";
-
-  //
-  // Auto translate (stop)
-  //
-
-  const stop =
-    `__**Stop Auto Translation**__\n\n` +
-    `Terminates auto-translation of channel for you. ` +
-    `Admins/mods can stop for other channels or users in server.` +
-    "```md\n" +
-    `# Command\n` +
-    `> ${cmd} stop \n` +
-    `> ${cmd} stop for [me/@/#/all] \n\n` +
-    `# Parameters\n` +
-    `> for [me/@/#/all] - defaults to "me" \n\n` +
-    `# Examples\n` +
-    `* ${cmd} stop \n` +
-    `* ${cmd} stop for me \n` +
-    `* ${cmd} stop for @usr1 \n` +
-    `* ${cmd} stop for #ch1 \n` +
-    `* ${cmd} stop for all \n` +
-    "```";
-
-  //
-  // Misc
-  //
-
-  const misc =
-    `__**Miscellaneous Commands**__\n\n` +
-    "```md\n" +
-    `# Help\n` +
-    `> ${cmd} help\n` +
-    `> ${cmd} help [command]\n\n` +
-    `# Statistics\n` +
-    `> ${cmd} stats \n` +
-    `> ${cmd} stats global \n` +
-    `> ${cmd} stats server \n\n` +
-    `# Links\n` +
-    `> ${cmd} invite\n\n` +
-    `# Supported Languages\n` +
-    `> ${cmd} list\n` +
-    "```";
-
-  //
-  // Settings
-  //
-
-  const settings =
-    `__**Settings**__\n\n` +
-    `These commands are available only to admins in server channels.` +
-    "```md\n" +
-    `# Set default server language\n` +
-    `> ${cmd} settings setLang to [lang]`
-    "```";
-
-  //
-  // Process result
-  //
-
-  const paramMap = {
-    basics: info + basics,
-    custom: custom,
-    react: react,
-    auto: auto,
-    stop: stop,
-    misc: misc,
-    settings: settings,
-  };
-
-  if (paramMap.hasOwnProperty(param)) {
-    return paramMap[param];
+    message.channel.send(output, {code: 'asciidoc', split: { char: '\u200b' }});
+  } else {
+    // Show individual command's help.
+    let commandName = context.args[0];
+    const command = bot.commands.getCommand(commandName, context);
+    if (command) {
+      message.channel.send(`= ${command.name} = \n${command.help.description}\nusage:: ${command.help.usage}\naliases:: ${command.conf.aliases.join(', ')}`, {code:'asciidoc'});
+    }
   }
+};
 
-  return paramMap.basics;
+exports.conf = {
+  enabled: true,
+  guildOnly: false,
+  aliases: ['h', 'halp']
+};
+
+exports.help = {
+  name: 'help',
+  category: 'System',
+  description: 'Displays the available commands to you',
+  usage: 'help [command]'
 };

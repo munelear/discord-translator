@@ -1,11 +1,7 @@
 const translate = require('@vitalets/google-translate-api');
 const ISO6391 = require("iso-639-1");
-const fn = require("./helpers");
 
-// ----------------------------------
 // Fix inconsistencies in lang codes
-// ----------------------------------
-
 const langExceptions = {
   he: "iw",
   zh: "zh-CN",
@@ -14,55 +10,60 @@ const langExceptions = {
   "zh-tw": "zh-TW"
 };
 
-const langInvertException = function (code) {
-  const output = fn.getKeyByValue(langExceptions, code);
-
-  if (output) {
-    return output;
-  }
-
-  return code;
+// Get key name of object by its value
+function getKeyByValue(value) {
+  return Object.keys(langExceptions).find((key) => langExceptions[key] === value);
 };
 
-// -----------------------------
-// Convert language name to ISO
-// -----------------------------
+const langInvertException = function (code) {
+  // TODO rewrite the reverse lookup in a more efficient way
+  const output = getKeyByValue(code);
 
+  return output || code;
+};
+
+// Convert language name to ISO
 const getLangISO = function (lang) {
-  var code;
+  var code = lang;
 
   if (!/^[A-z]{2}[A-z]?(?:-[A-z]{2,}?)?$/i.test(lang)) {
     code = ISO6391.getCode(lang);
-  } else {
-    code = lang;
   }
 
-  if (langExceptions.hasOwnProperty(code)) {
-    return langExceptions[code];
+  // remap inconsistencies in lang codes
+  if (langExceptions.hasOwnProperty(lang)) {
+    code = langExceptions[lang];
   }
 
   return code;
 };
 
-// --------------------------------------
-// Language Code Converter and Validator
-// --------------------------------------
+// Split string to array if not array
+function arraySplit(input, sep) {
+  if (input.constructor === Array && input.length > 0) {
+    return input;
+  }
+  return input.split(sep);
+}
 
+// Remove duplicates from array
+function removeDupes(array) {
+  return Array.from(new Set(array));
+}
+
+// Language Code Converter and Validator
 module.exports = function (lang, single = false) {
   if (!lang) {
     return null;
   }
 
-  if (lang === "default") {
-    return "default";
-  }
-
-  if (lang === "auto") {
-    return "auto";
+  // special cases return themselves
+  if (lang === "default" || lang === "auto") {
+    return lang;
   }
 
   var langs = {
-    unchecked: fn.arraySplit(lang, ","),
+    unchecked: arraySplit(lang, ","),
     valid: [],
     unique: [],
     invalid: [],
@@ -86,14 +87,8 @@ module.exports = function (lang, single = false) {
   });
 
   // clean up
-
-  langs.invalid = fn.removeDupes(langs.invalid);
-
+  langs.invalid = removeDupes(langs.invalid);
   delete langs.unchecked;
 
-  if (single) {
-    return langs.unique[0];
-  }
-
-  return langs;
+  return single ? langs.unique[0] : langs;
 };

@@ -1,13 +1,26 @@
-const colors = require("./colors");
-const fn = require("./helpers");
-const logger = require("./logger");
-const discord = require("discord.js");
+const logger = require("../modules/logger");
+const {Attachment} = require("discord.js");
 
-//
+const colors = {
+  info: 41215,
+  warn: 16764928,
+  err: 13107200,
+  error: 13107200,
+  ok: 5299300,
+};
+
+function getColor(color) {
+  if (colors.hasOwnProperty(color)) {
+    return colors[color];
+  }
+  if (isNaN(color)) {
+    return colors.warn;
+  }
+  return color;
+}
+
 // Send Data to Channel
-//
-
-const sendBox = async function (data) {
+async function sendBox(data) {
   if (data.author) {
     data.author = {
       name: data.author.nickname || data.author.username,
@@ -16,13 +29,12 @@ const sendBox = async function (data) {
   }
 
   if (data.text && data.text.length > 1) {
-    (await data.channel)
-      .send({
+    (await data.channel).send({
         embed: {
           title: data.title,
           fields: data.fields,
           author: data.author,
-          color: colors.get(data.color),
+          color: getColor(data.color),
           description: data.text,
           footer: data.footer,
         },
@@ -33,44 +45,20 @@ const sendBox = async function (data) {
       })
       .catch(async (err) => {
         var errMsg = err;
-        logger("dev", err);
+        logger.debug(err);
 
-        //
         // Error for long messages
-        //
-
         if (err.code && err.code === 50035) {
           (await data.channel).send(":warning:  Message is too long.");
         }
 
-        //
-        // Handle error for users who cannot recieve private messages
-        //
-
-        if (err.code && err.code === 50007 && data.origin) {
-          const badUser = data.channel.recipient;
-          errMsg = `@${badUser.username}#${badUser.discriminator}\n` + err;
-
-          await data.origin.send(
-              `:no_entry: User ${badUser} cannot receive direct messages ` +
-                `by bot because of **privacy settings**.\n\n__To fix this:__\n` +
-                "```prolog\nServer > Privacy Settings > " +
-                "'Allow direct messages from server members'\n```\n\n" +
-                `Alternatively, disable the auto translation task for this user.`
-            );
-        }
-
-        logger("error", errMsg);
+        logger.error(errMsg);
       });
   }
 };
 
-//
-// Resend embeds from original message
-// Only if content is forwared to another channel
-//
-
-const sendEmbeds = async function (data) {
+// Resend embeds from original message only if content is forwared to another channel
+async function sendEmbeds(data) {
   if (data.forward && data.embeds && data.embeds.length > 0) {
     const maxEmbeds = data.config.maxEmbeds;
 
@@ -88,13 +76,10 @@ const sendEmbeds = async function (data) {
       (await data.channel).send(data.embeds[i].url);
     }
   }
-};
+}
 
-//
 // Resend attachments
-//
-
-const sendAttachments = async function (data) {
+async function sendAttachments(data) {
   var attachments = data.attachments.array();
 
   if (data.forward && attachments && attachments.length > 0) {
@@ -110,19 +95,16 @@ const sendAttachments = async function (data) {
     }
 
     for (let i = 0; i < attachments.length; i++) {
-      const attachmentObj = new discord.Attachment(
+      const attachmentObj = new Attachment(
         attachments[i].url,
         attachments[i].filename
       );
       (await data.channel).send(attachmentObj);
     }
   }
-};
+}
 
-//
 // Analyze Data and determine sending style (system message or author box)
-//
-
 module.exports = function (data) {
   var sendData = {
     title: data.title,
@@ -139,37 +121,15 @@ module.exports = function (data) {
     bot: data.bot,
   };
 
-  //
-  // Notify server owner if bot cannot write to channel
-  //
-
-  if (!data.canWrite) {
-    const writeErr =
-      ":no_entry:  **Translate bot** does not have permission to write at " +
-      `the **${sendData.channel.name}** channel on your server **` +
-      `${sendData.channel.guild.name}**. Please fix.`;
-
-    return sendData.channel.guild.owner
-      .send(writeErr)
-      .catch((err) => logger("error", err));
-  }
-
   if (data.forward) {
     const forwardChannel = data.client.channels.fetch(data.forward);
 
     if (forwardChannel) {
-      //
       // Check if bot can write to destination channel
-      //
-
       var canWriteDest = true;
 
       if (forwardChannel.type === "text") {
-        canWriteDest = fn.checkPerm(
-          forwardChannel.guild.me,
-          forwardChannel,
-          "SEND_MESSAGES"
-        );
+        canWriteDest = forwardChannel.permissionsFor(forwardChannel.guild.me).has("SEND_MESSAGES");
       }
 
       if (canWriteDest) {
@@ -177,24 +137,18 @@ module.exports = function (data) {
         sendData.channel = forwardChannel;
       }
 
-      //
       // Error if bot cannot write to dest
-      //
       else {
         sendData.footer = null;
         sendData.embeds = null;
         sendData.color = "error";
-        sendData.text =
-          ":no_entry:  Bot does not have permission to write at the " +
-          `<#${forwardChannel.id}> channel.`;
+        sendData.text = `:no_entry:  Bot does not have permission to write to the <#${forwardChannel.id}> channel.`;
 
         return sendBox(sendData);
       }
     }
 
-    //
     // Error on invalid forward channel
-    //
     else {
       sendData.footer = null;
       sendData.embeds = null;
