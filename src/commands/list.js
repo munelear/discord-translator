@@ -1,15 +1,15 @@
-exports.run = async (bot, message, context) => {
+module.exports.run = async (bot, message, context) => {
   await message.reply(`**\`\`\`Supported Languages\`\`\`**\n${SUPPORTED_LANGUAGES.join(', ')}`);
 };
 
-exports.conf = {
+module.exports.conf = {
   enabled: true,
-  guildOnly: true,
-  adminOnly: true,
+  guildOnly: false,
+  adminOnly: false,
   aliases: []
 };
 
-exports.help = {
+module.exports.help = {
   name: 'list',
   category: 'System',
   description: 'List the supported languages',

@@ -1,6 +1,9 @@
 const logger = require("../modules/logger");
 const {Attachment} = require("discord.js");
 
+const MAX_EMBEDS = 5;
+const MAX_ATTACHMENTS = 5;
+
 const colors = {
   info: 41215,
   warn: 16764928,
@@ -60,16 +63,14 @@ async function sendBox(data) {
 // Resend embeds from original message only if content is forwared to another channel
 async function sendEmbeds(data) {
   if (data.forward && data.embeds && data.embeds.length > 0) {
-    const maxEmbeds = data.config.maxEmbeds;
-
-    if (data.embeds.length > maxEmbeds) {
+    if (data.embeds.length > MAX_EMBEDS) {
       sendBox({
         channel: data.channel,
-        text: `:warning:  Cannot embed more than ${maxEmbeds} links.`,
+        text: `:warning:  Cannot embed more than ${MAX_EMBEDS} links.`,
         color: "warn",
       });
 
-      data.embeds = data.embeds.slice(0, maxEmbeds);
+      data.embeds = data.embeds.slice(0, MAX_EMBEDS);
     }
 
     for (let i = 0; i < data.embeds.length; i++) {
@@ -83,15 +84,13 @@ async function sendAttachments(data) {
   var attachments = data.attachments.array();
 
   if (data.forward && attachments && attachments.length > 0) {
-    const maxAtt = data.config.maxEmbeds;
-
-    if (attachments.length > maxAtt) {
+    if (attachments.length > MAX_ATTACHMENTS) {
       sendBox({
         channel: data.channel,
-        text: `:warning:  Cannot attach more than ${maxAtt} files.`,
+        text: `:warning:  Cannot attach more than ${MAX_ATTACHMENTS} files.`,
         color: "warn",
       });
-      attachments = attachments.slice(0, maxAtt);
+      attachments = attachments.slice(0, MAX_ATTACHMENTS);
     }
 
     for (let i = 0; i < attachments.length; i++) {

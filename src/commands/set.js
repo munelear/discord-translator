@@ -1,9 +1,9 @@
-const langCheck = require('./../modules/lang.check');
+const language = require('./../modules/language');
 
-exports.run = async (bot, message, context) => {
+module.exports.run = async (bot, message, context) => {
   // if no language, show the help
   if (!context.args[0]) {
-    return await message.reply(`No language found, see \`${context.prefix} help set\``);
+    return await message.reply(`No language found, see \`${bot.config.prefix} help set\``);
   } else {
     let channelId = message.channel.id;
     let langArgs = context.args;
@@ -11,24 +11,24 @@ exports.run = async (bot, message, context) => {
       debugger;
     }
     const single = true;
-    const language = langCheck(langArgs.join(' '), single);
-    if (!language) {
-      throw new Error(`This doesn't appear to be a support language: \`${langArgs.join(' ')}\`.\nCheck the list of supported languages in \`${context.prefix} list\``);
+    const lang = language.check(langArgs.join(' '), single);
+    if (!lang) {
+      throw new Error(`This doesn't appear to be a support language: \`${langArgs.join(' ')}\`.\nCheck the list of supported languages in \`${bot.config.prefix} list\``);
     } else {
-      await bot.models.channels.setLanguage(channelId, message.guild.id, language);
-      await message.reply(`Channel language set to \`${language}\``);
+      await bot.models.channels.setLanguage(channelId, message.guild.id, lang);
+      await message.reply(`Channel language set to \`${language.getName(lang)}\``);
     }
   }
 };
 
-exports.conf = {
+module.exports.conf = {
   enabled: true,
   guildOnly: true,
   adminOnly: true,
   aliases: ['s']
 };
 
-exports.help = {
+module.exports.help = {
   name: 'set',
   category: 'System',
   description: 'Set the language for the channel',

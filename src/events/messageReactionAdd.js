@@ -1,6 +1,5 @@
-const langCheck = require("../modules/lang.check");
+const language = require('./../modules/language');
 const translate = require("../core/translate");
-const countryLangs = require("../core/country.langs");
 
 // translate a message through discord reaction (flag)
 module.exports = async (bot, reaction, user) => {
@@ -9,19 +8,17 @@ module.exports = async (bot, reaction, user) => {
 
   // Get country by emoji
   const emoji = reaction.emoji.name;
-  if (emoji && countryLangs.hasOwnProperty(emoji)) {
-    // Stop processing if country has no langs / null
-    if (!countryLangs[emoji].langs) return;
+  const lang = language.getFromEmoji(emoji);
 
-
-    // Get message data
+  // Stop processing if country has no langs / null
+  if (lang && lang.langs) {
     try {
       // translate data
       const message = reaction.message;
       message.translate = {
         original: message.content,
-        to: langCheck(countryLangs[emoji].langs),
-        from: langCheck("auto"),
+        to: language.check(lang.langs),
+        from: language.check("auto"),
         multi: true,
       };
 

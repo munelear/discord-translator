@@ -6,7 +6,7 @@ module.exports = (bot) => {
   bot.client.user.setPresence({
     status: "online",
     game: {
-      name: "!t help / !translate help",
+      name: `${bot.config.prefix} help`,
     },
   });
 };

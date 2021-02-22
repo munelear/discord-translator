@@ -34,7 +34,9 @@ module.exports.getCommand = (commandName, context) => {
   let cmd = commands[commandName] || commands[aliases[normalizeCommandName(commandName)]];
 
   if (!cmd) return;
+  //if (cmd.conf.guildOnly && !context.guild) return;
   if (!cmd.conf.enabled && !context.isOwner) return;
+  //if (cmd.conf.adminOnly && (!context.isAdmin || !context.isManager)) return;
 
   return cmd;
 };

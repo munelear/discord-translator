@@ -13,10 +13,9 @@ bot.events = require("./modules/events");
 bot.commands = require("./modules/commands");
 bot.config = {
   owner: process.env.BOT_OWNER,
-  defaultLanguage: "en",
-  translateCmd: "!t",
-  maxEmbeds: 5,
-  maxTasksPerChannel: 10,
+  prefix: process.env.PREFIX || '!t',
+  inviteUrl: process.env.INVITE_URL || null,
+  inviteDisabled: process.env.DISABLE_INVITE ? true : false
 };
 
 process.on("uncaughtException", (err) => {
@@ -30,10 +29,11 @@ process.on('unhandledRejection', (reason, promise) => {
 const init = async () => {
   bot.logger.setLevel(process.env.LOG_LEVEL);
 
-  bot.db = await mongoose.connect(process.env.MLAB_MONGODB, {
+  bot.db = await mongoose.connect(process.env.MONGO_URL, {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useFindAndModify: false
+    useFindAndModify: false,
+    useCreateIndex: true
   });
 
   await bot.events.loadAll(bot);

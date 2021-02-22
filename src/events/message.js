@@ -1,21 +1,14 @@
 const autoTranslate = require("./../core/auto");
 
-const PREFIX = process.env.DEFAULT_PREFIX || '!t';
-const PREFIX_LENGTH = PREFIX.length;
-const PREFIX_LOWER = PREFIX.toLowerCase();
-
-function isOwner(message) {
-  return (message.author.id == process.env.OWNER_ID);
-}
-
-function hasPrefix(content) {
+function hasPrefix(content, prefix) {
+  const prefixLength = prefix.length;
   let message = content;
 
-  if (content.length >= PREFIX_LENGTH) {
-    message = content.slice(0, PREFIX_LENGTH);
+  if (content.length >= prefixLength) {
+    message = content.slice(0, prefixLength);
   }
 
-  return (message.toLowerCase() == PREFIX_LOWER) ? true : false;
+  return (message.toLowerCase() == prefix.toLowerCase()) ? true : false;
 }
 
 module.exports = async (bot, message) => {
@@ -33,8 +26,7 @@ module.exports = async (bot, message) => {
     args: [],
     user: message.author.id,
     channel: message.channel.id,
-    prefix: PREFIX,
-    isOwner: isOwner(message)
+    isOwner: (message.author.id == bot.config.owner)
   };
 
   // populate guild member role based permissions
@@ -46,9 +38,9 @@ module.exports = async (bot, message) => {
   }
 
   let messageContent = message.content;
-  if (hasPrefix(messageContent)) {
+  if (hasPrefix(messageContent, bot.config.prefix)) {
     // keep listening if it's using the bot's prefix
-    messageContent = (messageContent.slice(PREFIX_LENGTH)).trim();
+    messageContent = (messageContent.slice(bot.config.prefix.length)).trim();
   } else if (!message.guild) {
     // allow DMs
   } else if (message.mentions.members.get(bot.client.user.id)) {
@@ -85,7 +77,7 @@ module.exports = async (bot, message) => {
   try {
     // not found or disabled
     if (!cmd) {
-      err = new Error(`Unable to find a command in the message \`${message.content}\` try \`${PREFIX} help\``);
+      err = new Error(`Unable to find a command in the message \`${message.content}\` try \`${bot.config.prefix} help\``);
       err.level = 'debug';
     } else if (cmd.conf.guildOnly && !message.guild) {
       err = new Error(`Command \`${cmd.name}\` cannot be used in direct messages`);

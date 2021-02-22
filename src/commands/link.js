@@ -1,6 +1,6 @@
 const MAX_MESSAGES = 30;
 
-exports.run = async (bot, message, context) => {
+module.exports.run = async (bot, message, context) => {
   const mergeGroups = async (keepGroupId, destroyGroupId) => {
     try {
       // get both groups
@@ -33,7 +33,7 @@ exports.run = async (bot, message, context) => {
 
   // if no args, show help
   if (!context.args[0]) {
-    return await message.reply(`No channels found, see \`${context.prefix} help link\``);
+    return await message.reply(`No channels found, see \`${bot.config.prefix} help link\``);
   } else {
     let channel = await bot.models.channels.getById(message.channel.id);
     let groupId;
@@ -48,6 +48,9 @@ exports.run = async (bot, message, context) => {
     for (let arg of context.args) {
       // strip the markup off of the <#channelId>
       const channelId = (arg.startsWith("<#")) ? arg.slice(2, -1) : arg;
+
+      // no reason to link a channel to itself
+      if (channelId === message.channel.id) continue;
 
       try {
         // check if it's a channel and in the same guild
@@ -74,18 +77,25 @@ exports.run = async (bot, message, context) => {
         throw(error);
       }
     }
-    return await message.reply(`This channel is now linked with: ${context.args.join(', ')}`);
+    const groupCommand = bot.commands.getCommand('group');
+    let successMessage;
+    if (groupCommand) {
+      successMessage = await groupCommand.listGroups(bot.models, message.guild.id);
+    } else {
+      successMessage = `This channel is now linked with: ${context.args.join(', ')}`;
+    }
+    return await message.reply(successMessage);
   }
 };
 
-exports.conf = {
+module.exports.conf = {
   enabled: true,
   guildOnly: true,
   adminOnly: true,
   aliases: ['l']
 };
 
-exports.help = {
+module.exports.help = {
   name: 'link',
   category: 'System',
   description: 'Link channels together for translation',

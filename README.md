@@ -1,32 +1,40 @@
-# Discord Translator Bot (beta)
+# Discord Translator Bot
 
 Translation bot built using `discord.js` and `Google Translate API`.
 
-Forked for personal use after the project was taken closed source. References to original author removed by request.
+Forked for personal use and functionality significantly modified after the project was taken closed source. References to the original author were removed by request.
+
+The architectural style is now deliberately closely modeled similar to the boilerplate [GuideBot](https://github.com/AnIdiotsGuide/guidebot) example provided by the Idiot's Guide Community since it is likely that more novice users may be familiar with that project.
 
 ## Features
 
-- Translate custom messages
-- Translate messages by reacting with flag emoji
-- Translate to multiple languages at once
-- Automatic translation of channels with option to forward translations to users or seperate channels.
+- Link channels together to automatically translate messages between
+- Set the desired language to translate messages to in each linked channel
+- Translate individual messages by reacting with the flag emoji of the desired country, for example :flag_us: for English
 - Supports 100+ languages
+
+## Future Development
+
+- Updating the translated messages if the original message is edited
+- Pausing translations to inactive channels in the group if they have not been used recently
+- Playing back the recent messages when resuming an inactive channel
+- Docker image
 
 ## Discord Usage
 
-- Write `!translate help` or `!t help` for a list of commands.
-
-## Commands
-
-- [Translate Custom Text](https://github.com/munelear/discord-translator/wiki/Translate-Custom-Text)
-- [Translate by Reaction](https://github.com/munelear/discord-translator/wiki/Translate-with-Emoji-Reaction)
-- [Translate Channel](<https://github.com/munelear/discord-translator/wiki/Translate-Channel-(Automatic)>)
-- [Settings](https://github.com/munelear/discord-translator/wiki/Settings)
-- [Statistics](https://github.com/munelear/discord-translator/wiki/Get-Statistics)
+- Each of the commands to modify the translation configuration on the server require at least one of
+    - being the bot owner
+    - having a role with admin privileges in the server
+    - having a role with the permission to modify text channels
+- Use `!t link <#channel1> <#channel2> ... <#channelN>` to link channels together in a group.  If any of the channels are already in a group, they're merged together.
+- The language for each channel can be set with `!t set <language name>`
+- `!t groups` will list all of the channel groups in the current server, and what languages they will translate to
+- `!t unlink [all]` will unlink the current channel from the group it is in.  Specifying the all option will destroy all of the translation groups in the server.
+- `!t help` for a list of other commands.
 
 ## Info for Developers
 
-You can run your own instance/clone of this bot by hosting it on your own machine/server - it will have a separate database and stats.
+You can run your own instance/clone of this bot by hosting it on your own machine/server.  You will need to provide a mongo db, such as [MLab's sandbox tier](https://mlab.com/plans/pricing/#plan-type=sandbox) which is currently offered for free.
 
 ## Requirements
 
@@ -34,12 +42,7 @@ You can run your own instance/clone of this bot by hosting it on your own machin
 * Node 12+
 * Basic knowledge of CLI/bash
 * Discord bot profile (created through [Discord developers' page](https://discordapp.com/developers/applications/me))
-
-## Libraries
-The bot uses the following main libraries to operate:
-* [discord.js](https://discord.js.org/#/) - main library for discord client
-* [sqlite3](https://www.npmjs.com/package/sqlite3) - storing data/stats
-* [google-translate-api](https://www.npmjs.com/package/@vitalets/google-translate-api) - translations
+* A mongo DB available for the bot to use
 
 ## Running Bot
 1. Clone repo from git
@@ -50,8 +53,8 @@ The bot uses the following main libraries to operate:
 ## Environment variables
 - `DISCORD_TOKEN` - the bot's token from the developer portal
 - `BOT_OWNER` - discord user ID for the owner.  This is not the user#discriminator, but the long string of numbers you get when you enabled discord's developer mode and right click a user then select 'copy id'
+- `MONGO_URL` - the URL for connecting to your Mongo DB instance, including the name of the database to use
 - `INVITE_URL` - URL for inviting the bot to a new server
-- `DISABLE_INVITE` - Disable advertising the invitation URL
-- `LOGGER_WEBHOOK_ID` - the id for the logger webhook
-- `LOGGER_WEBHOOK_TOKEN` - the token for the logger webhook
-- `DEVMODE` - enable additional logging
+- `PREFIX` - the command prefix you want the bot to use.  Defaults to `!t`.
+- `LOG_LEVEL` - the severity of log messages to output to the console, which include `debug`, `info`, `warn`, and `error`.  Messages below the severity specified will not be shown.  Defaults to `info`.
+- `DISABLE_INVITE` - Disable advertising the invitation URL if set to `true`.  Defaults to `false`.
