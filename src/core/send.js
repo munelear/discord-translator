@@ -3,6 +3,7 @@ const {Attachment} = require("discord.js");
 
 const MAX_EMBEDS = 5;
 const MAX_ATTACHMENTS = 5;
+const MAX_CONTENT = 2000;
 
 const colors = {
   info: 41215,
@@ -21,6 +22,26 @@ function getColor(color) {
   }
   return color;
 }
+
+// Split string to chunks
+function chunkString(str, len) {
+  var _size = Math.ceil(str.length / len);
+  var _ret = new Array(_size);
+  var _offset;
+
+  for (var _i = 0; _i < _size; _i++) {
+    _offset = _i * len;
+    _ret[_i] = str.substring(_offset, _offset + len);
+  }
+
+  return _ret;
+}
+/*
+// Split long messages
+  const textArray = chunkString(data.translate.original, 1500);
+
+  textArray.forEach((chunk) => {
+*/
 
 // Send Data to Channel
 async function sendBox(data) {
@@ -108,7 +129,6 @@ module.exports = function (data) {
   var sendData = {
     title: data.title,
     fields: data.fields,
-    config: data.config,
     channel: data.message.channel,
     color: data.color,
     text: data.text,
@@ -116,8 +136,7 @@ module.exports = function (data) {
     embeds: data.message.embeds,
     attachments: data.message.attachments,
     forward: data.forward,
-    origin: null,
-    bot: data.bot,
+    origin: null
   };
 
   if (data.forward) {
@@ -154,20 +173,6 @@ module.exports = function (data) {
       sendData.color = "error";
       sendData.text = ":warning:  Invalid channel.";
       return sendBox(sendData);
-    }
-  }
-
-  if (data.showAuthor) {
-    sendData.author = data.message.author;
-
-    if (data.author) {
-      sendData.author = data.author;
-    }
-
-    // fetch author's nickname in the guild if the message was in a guild
-    if (data.message.guild) {
-      const guildMember = data.message.guild.member(sendData.author);
-      sendData.author.nickname = guildMember ? guildMember.nickname : null;
     }
   }
 

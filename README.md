@@ -55,6 +55,8 @@ You can run your own instance/clone of this bot by hosting it on your own machin
 - `BOT_OWNER` - discord user ID for the owner.  This is not the user#discriminator, but the long string of numbers you get when you enabled discord's developer mode and right click a user then select 'copy id'
 - `MONGO_URL` - the URL for connecting to your Mongo DB instance, including the name of the database to use
 - `INVITE_URL` - URL for inviting the bot to a new server
-- `PREFIX` - the command prefix you want the bot to use.  Defaults to `!t`.
+- `PREFIX` - the command prefix you want the bot to use.  Defaults to `!t ` with a space.  You can also use a prefix that does not have a space.
 - `LOG_LEVEL` - the severity of log messages to output to the console, which include `debug`, `info`, `warn`, and `error`.  Messages below the severity specified will not be shown.  Defaults to `info`.
 - `DISABLE_INVITE` - Disable advertising the invitation URL if set to `true`.  Defaults to `false`.
+- `CACHE_LIFETIME` - how long in seconds to keep messages in discord.js's cache. Default value is `300` seconds.
+- `SWEEP_INTERVAL` - how frequently to sweep the cache to remove old messages in seconds. Default value is `60` seconds.

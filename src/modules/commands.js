@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const logger = require('./logger');
 
 const commands = {};
 const aliases = {};
@@ -43,7 +44,7 @@ module.exports.getCommand = (commandName, context) => {
 
 module.exports.loadCommand = (commandName) => {
   try {
-    console.log(`Loading Command: ${commandName}`);
+    logger.log(`[COMMANDS] Loading Command: ${commandName}`);
     const props = require(`../commands/${commandName}`);
 
     commands[commandName] = props;
@@ -64,7 +65,7 @@ module.exports.unloadCommand = (commandName, context) => {
     throw new Error(`The command \`${commandName}\` doesn"t seem to exist, nor is it an alias. Try again!`);
   }
 
-  console.log(`Unloading command: ${commandName}`);
+  logger.log(`[COMMANDS] Unloading command: ${commandName}`);
 
   const requirePath = require.resolve(`../commands/${command.name}`);
   delete require.cache[requirePath];

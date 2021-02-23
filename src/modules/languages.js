@@ -45,19 +45,6 @@ function getCode(lang) {
   return code;
 }
 
-// Split string to array if not array
-function arraySplit(input, sep) {
-  if (input.constructor === Array && input.length > 0) {
-    return input;
-  }
-  return input.split(sep);
-}
-
-// Remove duplicates from array
-function removeDupes(array) {
-  return Array.from(new Set(array));
-}
-
 function getName(language) {
   const code = getCode(language);
   const normalizedCode = getNormalizedCode(code);
@@ -70,55 +57,50 @@ function getNativeName(language) {
   const normalizedCode = getNormalizedCode(code);
   return ISO6391.getNativeName(normalizedCode);
 }
+module.exports.getNativeName = getNativeName;
 
-// Language Code Converter and Validator
-module.exports.check = function (lang, single = false) {
-  if (!lang) {
-    return null;
-  }
+// convert language input into the google supported language codes
+function getGoogleCode(lang) {
+  if (!lang) return null;
 
   // special cases return themselves
-  if (lang === "default" || lang === "auto") {
-    return lang;
-  }
+  if (lang === "auto") return lang;
 
-  var langs = {
-    unchecked: arraySplit(lang, ","),
-    valid: [],
-    unique: [],
-    invalid: [],
-  };
+  let code = getCode(lang);
+  return translate.languages.isSupported(code) ? code : null;
+}
+module.exports.getGoogleCode = getGoogleCode;
 
-  langs.unchecked.forEach((language) => {
-    const langISO = getCode(language);
-
-    if (translate.languages.isSupported(langISO)) {
-      if (!langs.unique.includes(langISO)) {
-        langs.unique.push(langISO);
-        langs.valid.push({
-          iso: langISO,
-          name: getName(langISO),
-          native: getNativeName(langISO),
-        });
-      }
-    } else {
-      langs.invalid.push(language.trim());
-    }
-  });
-
-  // clean up
-  langs.invalid = removeDupes(langs.invalid);
-  delete langs.unchecked;
-
-  return single ? langs.unique[0] : langs;
-};
-
-module.exports.getFromEmoji = function (emoji) {
-  let language = null;
+module.exports.getCodeFromEmoji = function (emoji) {
+  let code = null;
 
   if (emoji && flagEmojiMap.hasOwnProperty(emoji)) {
-    language = flagEmojiMap[emoji];
+    const language = flagEmojiMap[emoji];
+
+    if (language.langs) {
+      let i = 0;
+
+      while (!code && i < language.langs.length) {
+        code = getGoogleCode(language.langs[i++]);
+      }
+    }
   }
 
-  return language;
+  return code;
+};
+
+// Fix broken Discord tags after translation, eg: emojis, mentions, channels
+function translateFix(string) {
+  const normal = /(<[@#!$%&*])\s*/gim;
+  const nick = /(<[@#!$%&*]!)\s*/gim;
+  const role = /(<[@#!$%&*]&)\s*/gim;
+
+  return string.replace(normal, "$1").replace(nick, "$1").replace(role, "$1");
+}
+
+module.exports.translate = async function (message, to, from = "auto") {
+  let translated = await translate(message, { to: to, from: from });
+
+  translated.text = translateFix(translated.text);
+  return translated;
 };

@@ -9,7 +9,7 @@ module.exports.run = (bot, message, context) => {
     const longest = commandNames.reduce((long, str) => Math.max(long, str.length), 0);
 
     let currentCategory = '';
-    let output = `= Command List =\n\n[Use ${bot.config.prefix} help <commandname> for details]\n`;
+    let output = `= Command List =\n\n[Use ${bot.config.prefix}help <commandname> for details]\n`;
     const sorted = Object.values(myCommands).sort((p, c) => p.help.category > c.help.category ? 1 :  p.name > c.name && p.help.category === c.help.category ? 1 : -1 );
     sorted.forEach( c => {
       const cat = c.help.category;
@@ -17,7 +17,7 @@ module.exports.run = (bot, message, context) => {
         output += `\u200b\n== ${cat} ==\n`;
         currentCategory = cat;
       }
-      output += `${bot.config.prefix} ${c.name}${' '.repeat(longest - c.name.length)} :: ${c.help.description}\n`;
+      output += `${bot.config.prefix}${c.name}${' '.repeat(longest - c.name.length)} :: ${c.help.description}\n`;
     });
     message.channel.send(output, {code: 'asciidoc', split: { char: '\u200b' }});
   } else {

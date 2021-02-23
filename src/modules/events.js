@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const logger = require('./logger');
 
 const events = {};
 let client;
@@ -21,7 +22,7 @@ module.exports.loadAll = async (botObject) => {
 
 module.exports.loadEvent = (eventName) => {
   try {
-    console.log(`Loading event: ${eventName}`);
+    logger.log(`[EVENTS] Loading event: ${eventName}`);
     let event = require(`../events/${eventName}`);
 
     // set the 'this' value for the event callback function
@@ -39,7 +40,7 @@ module.exports.loadEvent = (eventName) => {
 };
 
 module.exports.unloadEvent = (eventName) => {
-  console.log(`Unloading event: ${eventName}`);
+  logger.log(`[EVENTS] Unloading event: ${eventName}`);
 
   if (!events[eventName]) {
     throw new Error(`The \`${eventName}\` event doesn"t seem to exist!`);

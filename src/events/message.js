@@ -15,13 +15,6 @@ module.exports = async (bot, message) => {
   // Ignore messages by bots
   if (message.author.bot) return;
 
-  const data = {
-    client: bot.client,
-    config: bot.config,
-    bot: bot.client.user,
-    message: message
-  };
-
   const context = {
     args: [],
     user: message.author.id,
@@ -34,7 +27,6 @@ module.exports = async (bot, message) => {
     context.guild = message.guild.id;
     context.isAdmin = message.member.permissions.has("ADMINISTRATOR");
     context.isManager = message.channel.permissionsFor(message.member).has("MANAGE_CHANNELS");
-    context.roleColor = message.member.displayColor;
   }
 
   let messageContent = message.content;
@@ -48,26 +40,8 @@ module.exports = async (bot, message) => {
     const mentionRegex = new RegExp(`<@!?${bot.client.user.id}> ?`, 'g');
     messageContent = messageContent.replace(mentionRegex, "");
   } else {
-    // check if any translation tasks should happen and stop listening to the request
-    const channel = await bot.models.channels.getById(message.channel.id);
-    if (channel && channel.groupId) {
-      data.rows = [];
-      const channels = await bot.models.channels.getByGroupId(channel.groupId);
-      for (const c of channels) {
-        if (c.channelId == channel.channelId) {
-          // for now, don't do a self translation
-          continue;
-        } else {
-          data.rows.push({
-            lang_from: "auto",
-            lang_to: c.language,
-            dest: c.channelId
-          });
-        }
-      }
-      autoTranslate(data);
-    }
-    return;
+    // check if anything needs to be translated
+    return autoTranslate(bot, message);
   }
 
   context.args = messageContent.trim().split(/ +/g);
@@ -77,7 +51,7 @@ module.exports = async (bot, message) => {
   try {
     // not found or disabled
     if (!cmd) {
-      err = new Error(`Unable to find a command in the message \`${message.content}\` try \`${bot.config.prefix} help\``);
+      err = new Error(`Unable to find a command in the message \`${message.content}\` try \`${bot.config.prefix}help\``);
       err.level = 'debug';
     } else if (cmd.conf.guildOnly && !message.guild) {
       err = new Error(`Command \`${cmd.name}\` cannot be used in direct messages`);

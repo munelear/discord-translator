@@ -33,7 +33,7 @@ module.exports.run = async (bot, message, context) => {
 
   // if no args, show help
   if (!context.args[0]) {
-    return await message.reply(`No channels found, see \`${bot.config.prefix} help link\``);
+    return await message.reply(`No channels found, see \`${bot.config.prefix}help link\``);
   } else {
     let channel = await bot.models.channels.getById(message.channel.id);
     let groupId;

@@ -6,17 +6,22 @@ const mongoose = require('mongoose');
 const token = process.env.DISCORD_TOKEN;
 
 const bot = {};
-bot.client = new Client();
+bot.client = new Client({
+  // https://discord.js.org/#/docs/main/stable/typedef/ClientOptions?scrollTo=messageCacheLifetime
+  messageCacheLifetime: process.env.CACHE_LIFETIME || 300, // How long a message should stay in the cache
+  messageSweepInterval: process.env.SWEEP_INTERVAL || 60   // How frequently to remove messages from the cache
+});
 bot.logger = require('./modules/logger'); // default logger
 bot.models = require('./models');
 bot.events = require("./modules/events");
 bot.commands = require("./modules/commands");
 bot.config = {
   owner: process.env.BOT_OWNER,
-  prefix: process.env.PREFIX || '!t',
+  prefix: process.env.PREFIX || '!t ',
   inviteUrl: process.env.INVITE_URL || null,
   inviteDisabled: process.env.DISABLE_INVITE ? true : false
 };
+bot.languages = require('./modules/languages');
 
 process.on("uncaughtException", (err) => {
   bot.logger.error(err);

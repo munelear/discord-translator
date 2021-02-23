@@ -44,7 +44,7 @@ module.exports.run = async (bot, message, context) => {
     }
     return await message.reply(`Removed all channels from all groups`);
   } else {
-    return await message.reply(`Unrecognized arguments, see \`${bot.config.prefix} help unlink\``);
+    return await message.reply(`Unrecognized arguments, see \`${bot.config.prefix}help unlink\``);
   }
 };
 

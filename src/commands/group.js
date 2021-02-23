@@ -1,4 +1,4 @@
-const language = require('./../modules/language');
+const languages = require('./../modules/languages');
 
 async function listGroups(models, guildId) {
   let groupNum = 1;
@@ -9,7 +9,7 @@ async function listGroups(models, guildId) {
     const channels = await models.channels.getByGroupId(group._id);
     const channelMsgs = [];
     for (const channel of channels) {
-      channelMsgs.push(`<#${channel.channelId}>: ${channel.language ? language.getName(channel.language) : 'none'}`);
+      channelMsgs.push(`<#${channel.channelId}>: ${channel.language ? languages.getName(channel.language) : 'none'}`);
     }
     if (channelMsgs.length) {
       groupMsgs.push(`Group ${groupNum++}:\n${channelMsgs.join('\n')}`);
