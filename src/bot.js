@@ -22,6 +22,8 @@ bot.config = {
   inviteDisabled: process.env.DISABLE_INVITE ? true : false
 };
 bot.languages = require('./modules/languages');
+bot.common = require('./modules/common');
+bot.send = require('./modules/send');
 
 process.on("uncaughtException", (err) => {
   bot.logger.error(err);

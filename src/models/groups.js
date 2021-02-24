@@ -8,7 +8,8 @@ const messageSchema = new mongoose.Schema({
 
 const groupSchema = new mongoose.Schema({
   guildId: {type: String, required: true},
-  recentMessages: {type: [messageSchema], default: []}
+  recentMessages: {type: [messageSchema], default: []},
+  paused: {type: Boolean, default: false}
 });
 
 groupSchema.statics.createGroup = async function(guildId) {

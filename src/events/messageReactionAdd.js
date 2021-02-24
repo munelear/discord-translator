@@ -14,6 +14,11 @@ module.exports = async (bot, reaction, user) => {
     // translate the message that was reacted to
     const translated = await bot.languages.translate(reaction.message.content, to);
 
+    const formatted = await bot.message.format({
+      message: reaction.message,
+      translation: translated
+    });
+
     /*
     message.translate = {
       original: message.content,

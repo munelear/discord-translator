@@ -1,4 +1,4 @@
-const autoTranslate = require("./../core/auto");
+const autoTranslate = require("../modules/auto");
 
 function hasPrefix(content, prefix) {
   const prefixLength = prefix.length;
@@ -40,8 +40,21 @@ module.exports = async (bot, message) => {
     const mentionRegex = new RegExp(`<@!?${bot.client.user.id}> ?`, 'g');
     messageContent = messageContent.replace(mentionRegex, "");
   } else {
-    // check if anything needs to be translated
-    return autoTranslate(bot, message);
+    if (message.guild) {
+      const ignores = await bot.models.ignores.getGuildIgnores(message.guild.id);
+      for (const ignore of ignores) {
+        if (hasPrefix(messageContent, ignore.prefix)) {
+          bot.logger.debug(`[TRANSLATE] ignoring prefix ${ignore.prefix}: {messageId:${message.id}}`);
+          return;
+        }
+      }
+      // check if anything needs to be translated
+      return autoTranslate(bot, message).catch((e) => {
+        bot.logger.error(`[TRANSLATE] Encountered an error auto translating channels:`, e);
+      });
+    } else {
+      return; // no op
+    }
   }
 
   context.args = messageContent.trim().split(/ +/g);

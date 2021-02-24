@@ -4,6 +4,7 @@ const channelSchema = new mongoose.Schema({
   channelId: {type: String, required: true, index: true},
   guildId: {type: String, required: true},
   groupId: {type: mongoose.ObjectId},
+  paused: {type: Boolean, default: false},
   language: {type: String}
 });
 
@@ -25,7 +26,8 @@ channelSchema.statics.setLanguage = async function(channelId, guildId, language 
     language: language
   }, {
     upsert: true,
-    new: true
+    new: true,
+    setDefaultsOnInsert: true
   }).exec();
 };
 
@@ -39,7 +41,8 @@ channelSchema.statics.setGroupId = async function(channelId, guildId, groupId) {
     groupId: groupId
   }, {
     upsert: true,
-    new: true
+    new: true,
+    setDefaultsOnInsert: true
   }).exec();
 };
 

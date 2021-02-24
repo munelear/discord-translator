@@ -12,7 +12,7 @@ module.exports.conf = {
   enabled: true,
   guildOnly: false,
   adminOnly: false,
-  aliases: []
+  aliases: ['inv']
 };
 
 module.exports.help = {
