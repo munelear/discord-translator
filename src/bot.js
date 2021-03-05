@@ -1,5 +1,14 @@
 const {Client} = require("discord.js");
 const mongoose = require('mongoose');
+const logger = require('./modules/logger'); // default logger
+
+process.on("uncaughtException", (err) => {
+  bot.logger.error(err);
+});
+process.on('unhandledRejection', (reason, promise) => {
+  const err = "Unhandled Rejection at:" + promise + "reason:" + reason;
+  bot.logger.error(err);
+});
 
 // Discord Dev > My Apps > Bot > App Bot User > Token > Reveal
 // https://discordapp.com/developers/applications/me
@@ -11,7 +20,7 @@ bot.client = new Client({
   messageCacheLifetime: process.env.CACHE_LIFETIME || 300, // How long a message should stay in the cache
   messageSweepInterval: process.env.SWEEP_INTERVAL || 60   // How frequently to remove messages from the cache
 });
-bot.logger = require('./modules/logger'); // default logger
+bot.logger = logger;
 bot.models = require('./models');
 bot.events = require("./modules/events");
 bot.commands = require("./modules/commands");
@@ -23,15 +32,7 @@ bot.config = {
 };
 bot.languages = require('./modules/languages');
 bot.common = require('./modules/common');
-bot.send = require('./modules/send');
-
-process.on("uncaughtException", (err) => {
-  bot.logger.error(err);
-});
-process.on('unhandledRejection', (reason, promise) => {
-  const err = "Unhandled Rejection at:" + promise + "reason:" + reason;
-  bot.logger.error(err);
-});
+bot.messages = require('./modules/messages');
 
 const init = async () => {
   bot.logger.setLevel(process.env.LOG_LEVEL);
@@ -45,6 +46,7 @@ const init = async () => {
 
   await bot.events.loadAll(bot);
   await bot.commands.loadAll();
+  bot.messages.init(bot);
 
   bot.client.login(token);
 };

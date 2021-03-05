@@ -1,5 +1,4 @@
 const discord = require("discord.js");
-const auth = require("./core/auth");
 
 /**
  * Discord Main Bot Script
