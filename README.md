@@ -49,10 +49,12 @@ You can run your own instance/clone of this bot by hosting it on your own machin
 3. Run `node index` or `npm run start` to start bot.  You will need to set the environment variables to pass in to the process, optionally using something like dotenv.
 4. Add bot to your server through OAuth2 (https://discordapp.com/developers/docs/topics/oauth2)
 
-## Environment variables
+## Required Environment Variables
 - `DISCORD_TOKEN` - the bot's token from the developer portal
-- `BOT_OWNER` - discord user ID for the owner.  This is not the user#discriminator, but the long string of numbers you get when you enabled discord's developer mode and right click a user then select 'copy id'
 - `MONGO_URL` - the URL for connecting to your Mongo DB instance, including the name of the database to use
+
+## Optional Environment Variables
+- `BOT_OWNER` - discord user ID for the owner.  This is not the user#discriminator, but the long string of numbers you get when you enabled discord's developer mode and right click a user then select 'copy id'
 - `INVITE_URL` - URL for inviting the bot to a new server
 - `PREFIX` - the command prefix you want the bot to use.  Defaults to `!t ` with a space.  You can also use a prefix that does not have a space.
 - `LOG_LEVEL` - the severity of log messages to output to the console, which include `debug`, `info`, `warn`, and `error`.  Messages below the severity specified will not be shown.  Defaults to `info`.
