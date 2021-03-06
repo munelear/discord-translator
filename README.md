@@ -2,9 +2,9 @@
 
 Translation bot built using `discord.js` and `Google Translate API`.
 
-Forked for personal use and functionality significantly modified after the project was taken closed source. References to the original author were removed by request.
+Forked for personal use and (almost) completely rewritten after the original project was taken closed source. References to the original author were removed by request when they OK'ed changing the license of the existing work to unlicense.  The only remaining code from that version of the project is essentially the flag emoji map for translating via reaction.
 
-The architectural style is now deliberately closely modeled similar to the boilerplate [GuideBot](https://github.com/AnIdiotsGuide/guidebot) example provided by the Idiot's Guide Community since it is likely that more novice users may be familiar with that project.
+The architectural style is now deliberately similar to the boilerplate [GuideBot](https://github.com/AnIdiotsGuide/guidebot) example provided by the Idiot's Guide Community since it is likely that more novice users may be familiar with that project.
 
 ## Features
 
@@ -18,7 +18,6 @@ The architectural style is now deliberately closely modeled similar to the boile
 - Updating the translated messages if the original message is edited
 - Pausing translations to inactive channels in the group if they have not been used recently
 - Playing back the recent messages when resuming an inactive channel
-- Docker image
 
 ## Discord Usage
 
@@ -47,7 +46,7 @@ You can run your own instance/clone of this bot by hosting it on your own machin
 ## Running Bot
 1. Clone repo from git
 2. Run `npm install`
-3. Run `node src/bot` or `npm run start` to start bot.  You will need to set the environment variables to pass in to the process, optionally using something like dotenv.
+3. Run `node index` or `npm run start` to start bot.  You will need to set the environment variables to pass in to the process, optionally using something like dotenv.
 4. Add bot to your server through OAuth2 (https://discordapp.com/developers/docs/topics/oauth2)
 
 ## Environment variables
@@ -58,5 +57,8 @@ You can run your own instance/clone of this bot by hosting it on your own machin
 - `PREFIX` - the command prefix you want the bot to use.  Defaults to `!t ` with a space.  You can also use a prefix that does not have a space.
 - `LOG_LEVEL` - the severity of log messages to output to the console, which include `debug`, `info`, `warn`, and `error`.  Messages below the severity specified will not be shown.  Defaults to `info`.
 - `DISABLE_INVITE` - Disable advertising the invitation URL if set to `true`.  Defaults to `false`.
+- `DISABLE_ATTACHMENTS` - if you're concerned about performance or for some reason don't want the bot to replicate message attachments when translating to other channels, set this variable to `true`
 - `CACHE_LIFETIME` - how long in seconds to keep messages in discord.js's cache. Default value is `300` seconds.
 - `SWEEP_INTERVAL` - how frequently to sweep the cache to remove old messages in seconds. Default value is `60` seconds.
+- `SHARD_IDS` - comma separated list of shard IDs to spawn and manage, 0 indexed. This is only required if you want more explicit control over how many shards are spawned by your bot and where, otherwise it will spawn all of the suggested shards based on how many guilds your bot is in.  The shard IDs must be between `0` and `TOTAL_SHARDS-1`.  Example: `0,2,4` with a `TOTAL_SHARDS` value of `5` will result in shards 0, 2, and 4 being spawned by this instance of the bot.  You can launch another instance somewhere to manage 1 and 3.
+- `TOTAL_SHARDS` - the total number of unique shard IDs that will run across all instances of the bot. This is only required if you do not want to use sharding, or want to directly control how many shards run and where.  If you do not specify this option, it will use the suggested number of shards by the discord API.  In order to disable the sharding manager entirely, specify 0 or 1 for the value of TOTAL_SHARDS.

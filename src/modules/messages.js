@@ -25,7 +25,7 @@ module.exports.format = async (details) => {
   const attachments = [];
   let nickname;
   let displayColor;
-  let footerMessage;
+  let channelName;
   let imageUrl;
 
   if (message.guild) {
@@ -36,10 +36,7 @@ module.exports.format = async (details) => {
     // set the embed color to the author's role color
     displayColor = message.member.displayColor;
 
-    // if forwarding to a channel other than the original channel, set the footer to the source channel's name
-    if (destination !== message.channel.id) {
-      footerMessage = `via #${message.channel.name}`;
-    }
+    channelName = message.channel.name;
   }
 
   const msgAttachments = message.attachments.array();
@@ -65,11 +62,12 @@ module.exports.format = async (details) => {
 
   let currentText = translation;
 
-  // swap out URLs from translated text, if possible, if not, strip them out
+  // swap out URLs that may have been mangled from translated text
   const translatedUrls = [...getUrls(translation, {})];
   const urls = [...getUrls(message.content)];
 
   for (let i = 0; i < translatedUrls.length; i++) {
+    // if possible use the original URLs, if not, strip them out
     let replacement = '';
     if (i < urls.length) {
       replacement = urls[i];
@@ -78,14 +76,16 @@ module.exports.format = async (details) => {
     currentText = currentText.replace(translatedUrls[i], replacement);
   }
 
-  // check if any of the urls are images if an attachment wasn't already picked as the embed image
+  // check if any of the urls in the text are images
   for (const url of urls) {
     let extension = getExtensionFromUrl(url);
     if (isImageExtension(extension)) {
       if (!imageUrl) {
+        // if an attachment wasn't already picked as the embed image, set the first image found as the embed image
         bot.logger.debug(`Found an image in the text body, setting as the embed image: ${url}`);
         imageUrl = url;
       } else {
+        // already picked an embed image, so add image urls as attachments to get the preview behavior
         bot.logger.debug(`Found additional images in the text body, adding as an attachment: ${url}`);
         attachments.push(new MessageAttachment(url));
       }
@@ -103,22 +103,28 @@ module.exports.format = async (details) => {
     }
   };
 
+  // if forwarding to a channel other than the original channel
   if (destination !== message.channel.id) {
-    content.files = attachments;
-  }
+    // add any attachments and set the embed's image url
 
-  if (imageUrl) {
-    content.embed.image = { url: imageUrl };
-  }
+    if (!bot.config.disableAttachments) {
+      content.files = attachments;
+    }
 
-  if (footerMessage) {
-    content.embed.footer = { text: footerMessage };
+    if (imageUrl) {
+      content.embed.image = { url: imageUrl };
+    }
+
+    // set the footer to the source channel's name
+    if (channelName) {
+      content.embed.footer = { text: `via #${channelName}` };
+    }
   }
 
   return content;
 };
 
-module.exports.send = async (channelId, content) => {
+module.exports.send = async (channelId, content, mentions) => {
   try {
     const forwardChannel = await bot.client.channels.fetch(channelId);
 
@@ -131,7 +137,11 @@ module.exports.send = async (channelId, content) => {
       }
 
       if (canWriteDest) {
-        return await forwardChannel.send(content);
+        if (mentions && bot.config.enableMentions) {
+          return await forwardChannel.send(mentions, content);
+        } else {
+          return await forwardChannel.send(content);
+        }
       } else {
         bot.logger.error(`Unable to write channel: ${channelId}`);
         if (forwardChannel.guild) {

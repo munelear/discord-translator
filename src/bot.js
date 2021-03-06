@@ -28,7 +28,8 @@ bot.config = {
   owner: process.env.BOT_OWNER,
   prefix: process.env.PREFIX || '!t ',
   inviteUrl: process.env.INVITE_URL || null,
-  inviteDisabled: process.env.DISABLE_INVITE ? true : false
+  inviteDisabled: process.env.DISABLE_INVITE || false,
+  disableAttachments: process.env.DISABLE_ATTACHMENTS || false
 };
 bot.languages = require('./modules/languages');
 bot.common = require('./modules/common');
@@ -50,4 +51,4 @@ const init = async () => {
 
   bot.client.login(token);
 };
-init();
+module.exports.init = init;

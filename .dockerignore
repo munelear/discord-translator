@@ -1,0 +1,11 @@
+.vscode/
+.git/
+dist/
+bin/
+node_modules/
+coverage/
+__mocks__/
+*.yml
+*.md
+*.test.js
+.env
