@@ -5,8 +5,9 @@ module.exports = (bot) => {
   bot.logger.info(`${bot.client.user.tag}${shardMessage} online and ready`);
   bot.client.user.setPresence({
     status: "online",
-    game: {
+    activity: {
       name: `${bot.config.prefix}help`,
+      type: 'LISTENING'
     },
   });
 };

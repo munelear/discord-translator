@@ -1,26 +1,23 @@
 const {MessageAttachment} = require("discord.js");
+const getUrls = require('get-urls');
+
+const IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif', 'gifv', 'm4v', 'mp4', 'webm'];
 
 let bot;
-
-const MAX_ATTACHMENTS = 5;
-const MAX_CONTENT = 2000;
 
 module.exports.init = (botRef) => {
   bot = botRef;
 };
 
-// Split string to chunks
-function chunkString(str, len) {
-  var _size = Math.ceil(str.length / len);
-  var _ret = new Array(_size);
-  var _offset;
+function getExtensionFromUrl(url) {
+  const [uri, params] = url.split('?');
+  const extension = uri.split('.').pop();
 
-  for (var _i = 0; _i < _size; _i++) {
-    _offset = _i * len;
-    _ret[_i] = str.substring(_offset, _offset + len);
-  }
+  return extension;
+}
 
-  return _ret;
+function isImageExtension(extension) {
+  return IMAGE_EXTENSIONS.includes(extension.toLowerCase());
 }
 
 module.exports.format = async (details) => {
@@ -29,6 +26,7 @@ module.exports.format = async (details) => {
   let nickname;
   let displayColor;
   let footerMessage;
+  let imageUrl;
 
   if (message.guild) {
     // fetch author's nickname in the guild if the message was in a guild
@@ -45,28 +43,54 @@ module.exports.format = async (details) => {
   }
 
   const msgAttachments = message.attachments.array();
-
-  if (msgAttachments && msgAttachments.length > 0) {
-    if (msgAttachments.length > 1) {
-      bot.logger.warn(`Did not expect more than 1 file.`);
+  if (msgAttachments.length > 1) {
+    bot.logger.warn(`Did not expect more than 1 file.`);
+  }
+  for (const attachment of msgAttachments) {
+    if (!imageUrl) {
+      let extension = getExtensionFromUrl(attachment.url);
+      if (isImageExtension(extension)) {
+        imageUrl = attachment.url;
+      }
     }
 
-    let i = 0;
-
-    // TODO - also reference images in the embed? https://discord.js.org/#/docs/main/stable/class/MessageEmbed?scrollTo=image
-    // TODO - how to handle URLs to images in the message text? parse them out and include as attachments?
-    attachments.push(new MessageAttachment(
-      msgAttachments[i].url,
-      msgAttachments[i].filename
-    ));
+    // if it's not a recognized image file type, or already found an image just attach it again
+    if (imageUrl) {
+      attachments.push(new MessageAttachment(
+        attachment.url,
+        attachment.name
+      ));
+    }
   }
 
-  /*
-  // Split long messages
-    const textArray = chunkString(data.translate.original, 1500);
+  let currentText = translation;
 
-    textArray.forEach((chunk) => {
-  */
+  // swap out URLs from translated text, if possible, if not, strip them out
+  const translatedUrls = [...getUrls(translation, {})];
+  const urls = [...getUrls(message.content)];
+
+  for (let i = 0; i < translatedUrls.length; i++) {
+    let replacement = '';
+    if (i < urls.length) {
+      replacement = urls[i];
+    }
+
+    currentText = currentText.replace(translatedUrls[i], replacement);
+  }
+
+  // check if any of the urls are images if an attachment wasn't already picked as the embed image
+  for (const url of urls) {
+    let extension = getExtensionFromUrl(url);
+    if (isImageExtension(extension)) {
+      if (!imageUrl) {
+        bot.logger.debug(`Found an image in the text body, setting as the embed image: ${url}`);
+        imageUrl = url;
+      } else {
+        bot.logger.debug(`Found additional images in the text body, adding as an attachment: ${url}`);
+        attachments.push(new MessageAttachment(url));
+      }
+    }
+  }
 
   const content = {
     embed: {
@@ -75,10 +99,17 @@ module.exports.format = async (details) => {
         icon_url: message.author.displayAvatarURL()
       },
       color: displayColor,
-      description: translation
-    },
-    files: attachments
+      description: currentText
+    }
   };
+
+  if (destination !== message.channel.id) {
+    content.files = attachments;
+  }
+
+  if (imageUrl) {
+    content.embed.image = { url: imageUrl };
+  }
 
   if (footerMessage) {
     content.embed.footer = { text: footerMessage };
@@ -102,11 +133,16 @@ module.exports.send = async (channelId, content) => {
       if (canWriteDest) {
         return await forwardChannel.send(content);
       } else {
-        // TODO - DM server owner about channel permissions
         bot.logger.error(`Unable to write channel: ${channelId}`);
+        if (forwardChannel.guild) {
+          const owner = await bot.client.users.fetch(forwardChannel.guild.ownerID);
+          await owner.send(`Help! I can't send messages to the \`#${forwardChannel.name}\` channel `+
+            `in the \`'${forwardChannel.guild.name}'\` server! Please make sure I have the ` +
+            `permissions to read and send messages, embed links, and attach files.`);
+        }
       }
     } else {
-      // TODO - couldn't find the channel?
+      // couldn't find the channel?
       bot.logger.error(`Could not fetch channel: ${channelId}`);
     }
   } catch (error) {

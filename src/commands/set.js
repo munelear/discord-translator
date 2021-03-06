@@ -5,10 +5,6 @@ module.exports.run = async (bot, message, context) => {
   } else {
     let channelId = message.channel.id;
     let langArgs = context.args;
-    if (langArgs.lenth > 1) {
-      // TODO - support setting languages for other channels by reference
-      debugger;
-    }
     const lang = bot.languages.getGoogleCode(langArgs.join(' '));
     if (!lang) {
       throw new Error(`This doesn't appear to be a support language: \`${langArgs.join(' ')}\`.\nCheck the list of supported languages in \`${bot.config.prefix}list\``);

@@ -24,14 +24,15 @@
     "url": "https://github.com/munelear/discord-translator/issues"
   },
   "dependencies": {
-    "@vitalets/google-translate-api": "^5.0.0",
+    "@vitalets/google-translate-api": "^5.1.0",
     "chalk": "^4.1.0",
     "discord.js": "^12.5.1",
+    "get-urls": "^10.0.0",
     "iso-639-1": "^2.1.8",
     "moment": "^2.29.1",
     "moment-duration-format": "^2.3.2",
     "mongodb": "^3.6.4",
-    "mongoose": "^5.11.18"
+    "mongoose": "^5.11.19"
   },
   "scripts": {
     "start": "node src/bot",

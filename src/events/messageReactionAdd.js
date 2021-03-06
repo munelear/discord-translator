@@ -16,25 +16,11 @@ module.exports = async (bot, reaction, user) => {
 
     const content = await bot.messages.format({
       message: reaction.message,
-      translation: translated,
-      destination: message.channel.id
+      translation: translated.text,
+      destination: reaction.message.channel.id
     });
 
-    await bot.messages.send(message.channel.id, content);
-
-    /*
-    message.translate = {
-      original: message.content,
-      to: bot.languages.check(lang.langs),
-      from: bot.languages.check("auto"),
-      multi: true,
-    };
-    // message data
-    message.message = message;
-    message.message.roleColor = message.message.member.displayColor;
-    */
-    // send the resulting message
-    debugger;
+    await bot.messages.send(reaction.message.channel.id, content);
   } catch(error) {
     return bot.logger.error(error);
   }
